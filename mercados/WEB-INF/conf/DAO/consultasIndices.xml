@@ -1,0 +1,740 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="consultasMercadosIndices" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>obtenerPosiblesIndices</value>
+					</key>
+					<value>select ind.v_indaccsec_codigo clave,
+						ind.v_indaccsec_nombre
+						value
+						from portalbvc.tbindaccsec ind
+						where ind.V_INDACCSEC_HOME!=0
+						and ind.v_indaccsec_codigo NOT IN ('IGBC','IC20')
+                  order by v_indaccsec_nombre</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerIndicesMercado</value>
+					</key>
+					<value>select ind.v_indaccsec_codigo clave,
+					     CASE
+                          WHEN "RENTA FIJA" = (select DISTINCT('RENTA FIJA') from unicabd.tbindrf rf where ind.v_indaccsec_codigo=rf.V_INDRF_COD_INDICE) THEN "RENTA FIJA"
+                          WHEN "RENTA VARIABLE" = (select DISTINCT('RENTA VARIABLE') from unicabd.tbindacc rv where ind.v_indaccsec_codigo=rv.V_INDACC_CODIGO)  THEN "RENTA VARIABLE"
+                          WHEN "MERCADO MONETARIO" =(select DISTINCT('MERCADO MONETARIO') from unicabd.tbibrindc mm where ind.v_indaccsec_codigo=mm.V_IBRINDC_COD_INDICE) THEN "MERCADO MONETARIO"
+                          ELSE 'N/A'
+  						  END as mercado,
+						ind.v_indaccsec_nombre
+						value
+						from portalbvc.tbindaccsec ind
+						where ind.V_INDACCSEC_HOME!=0
+						and ind.v_indaccsec_codigo NOT IN ('IGBC','IC20')
+                  order by v_indaccsec_nombre</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenPorIndiceYFecha</value>
+					</key>
+					<value>select ind.v_indacc_codigo indice,
+						ind.v_indacc_valor_hoy
+						valorHoy,
+						ind.v_indacc_valor_ayer valorAyer,
+						ind.v_indacc_var_dia
+						variacionHoy,
+						(ind.v_indacc_valor_hoy - ind.v_indacc_valor_ayer)
+						variacionAbs,
+						ind.v_indacc_var_anual variacionAnual,
+						ind.v_indacc_fecha fechaInt,
+						(select indI.v_indacc_valor_hoy
+						from
+						unicabd.tbindacc indI
+						where indI.v_indacc_codigo = ':codIndice'
+						and
+						indI.v_indacc_fecha = :fecha12Meses) valor12Meses
+						from
+						unicabd.tbindacc ind
+						where ind.v_indacc_codigo = ':codIndice' and
+						ind.v_indacc_fecha = :fecha</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenPorIndiceYRangoFecha</value>
+					</key>
+					<value>
+						select pInd.v_indaccsec_nombre indice,
+						ind.v_indacc_valor_hoy valorHoy,
+						ind.v_indacc_valor_ayer valorAyer,
+						ind.v_indacc_var_dia variacionHoy,
+						(ind.v_indacc_valor_hoy -
+						ind.v_indacc_valor_ayer) variacionAbs,
+						ind.v_indacc_var_anual
+						variacionAnual,
+						ind.v_indacc_fecha fechaInt
+						from unicabd.tbindacc
+						ind
+						inner join portalbvc.tbindaccsec pInd on
+						pInd.v_indaccsec_codigo =
+						ind.v_indacc_codigo
+						where
+						ind.v_indacc_codigo = ':codIndice' and
+						ind.v_indacc_fecha &lt;=
+						:fechaMax and
+						ind.v_indacc_fecha >= :fechaMin
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenPorIndiceYRangoFechaRF</value>
+					</key>
+					<value>
+						select pInd.v_indaccsec_nombre indice,
+						ind.v_INDRF_valor_hoy
+						valorHoy,
+						ind.v_INDRF_valor_ayer valorAyer,
+						ind.v_INDRF_var_dia
+						variacionHoy,
+						(ind.v_INDRF_valor_hoy -
+						ind.v_INDRF_valor_ayer)
+						variacionAbs,
+						ind.v_INDRF_var_anual
+						variacionAnual,
+						date_format(ind.V_INDRF_FECHA,'%Y%m%d') fechaInt
+						from unicabd.tbindrf ind
+						inner join
+						portalbvc.tbindaccsec pInd on
+						pInd.v_indaccsec_codigo =
+						ind.V_INDRF_COD_INDICE where
+						ind.V_INDRF_COD_INDICE = ':codIndice'
+						and
+						ind.v_INDRF_fecha &lt;=
+						':fechaMax' and
+						ind.v_INDRF_fecha >=
+						':fechaMin'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenPorIndiceYRangoFechaMM</value>
+					</key>
+					<value>
+						select pInd.v_indaccsec_nombre indice,
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d'),
+						ind.v_ibrindc_valorindice valorHoy,
+						ind.v_ibrindc_varindice variacionHoy,
+						(ind.v_ibrindc_valorindice/(ind.v_ibrindc_varindice+1)) valorAyer,
+						(ind.v_ibrindc_valorindice - ((ind.v_ibrindc_valorindice/(ind.v_ibrindc_varindice+1)))) variacionAbs,
+                        (select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1)valor12Meses,
+						((ind.v_ibrindc_valorindice -(select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= CONCAT(YEAR(date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d')),'0101') -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1))/
+						(select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= CONCAT(YEAR(date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d')),'0101') -
+						10000
+						order by date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1))variacionAnual,
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') fechaInt
+						from unicabd.tbibrindc ind
+						inner join
+						portalbvc.tbindaccsec pInd on
+						pInd.v_indaccsec_codigo =
+						ind.V_ibrindc_COD_INDICE where
+						ind.V_ibrindc_COD_INDICE = ':codIndice'
+						and
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;=
+						':fechaMax' and
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') >=
+						':fechaMin'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerMapaFechaValorHoyPorRango</value>
+					</key>
+					<value>
+						select indI.v_indacc_fecha fecha, indI.v_indacc_valor_hoy
+						valor
+						from unicabd.tbindacc indI
+						where indI.v_indacc_codigo =
+						':codIndice' and
+						indI.v_indacc_fecha &lt;= :fechaMax and
+						indI.v_indacc_fecha >= :fechaMin
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerMapaFechaValorHoyPorRangoRF</value>
+					</key>
+					<value>
+						select indI.V_INDRF_FECHA fecha, indI.V_INDRF_VALOR_HOY
+						valor
+						from unicabd.tbindrf indI
+						where indI.V_INDRF_COD_INDICE =
+						':codIndice' and
+						indI.V_INDRF_FECHA &lt;= ':fechaMax' and
+						indI.V_INDRF_FECHA >= ':fechaMin'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenPorIndiceYRangoFechaRecientes</value>
+					</key>
+					<value>
+						SELECT pInd.v_indaccsec_nombre indice ,
+						ind.v_indacc_valor_hoy valorHoy ,
+						ind.v_indacc_valor_ayer valorAyer
+						,
+						ind.v_indacc_var_dia variacionHoy ,
+						(ind.v_indacc_valor_hoy -
+						ind.v_indacc_valor_ayer) variacionAbs,
+						ind.v_indacc_var_anual
+						variacionAnual ,
+						ind.v_indacc_fecha fechaInt ,
+						( SELECT
+						v_indacc_valor_hoy
+						FROM unicabd.tbindacc indI
+						WHERE
+						indI.v_indacc_codigo = ':codIndice'
+						AND v_indacc_fecha =
+						:fechaMenor
+						) valor12Meses
+						FROM unicabd.tbindacc ind
+						INNER JOIN
+						portalbvc.tbindaccsec pInd
+						ON pInd.v_indaccsec_codigo =
+						ind.v_indacc_codigo
+						WHERE
+						ind.v_indacc_codigo = ':codIndice'
+						AND
+						ind.v_indacc_fecha &lt;= :fechaMax
+						AND ind.v_indacc_fecha >=
+						:fechaMin
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerMetaDataPorIndice</value>
+					</key>
+					<value>
+						select ind.v_indaccsec_codigo indice,
+						ind.v_indaccsec_nombre
+						nombreIndice,
+						ind.V_INDACCSEC_CONTENIDO_GENERALIDADES
+						contenidoGeneralidades,
+						ind.V_INDACCSEC_CONTENIDO_FORMULA
+						contenidoFormulas,
+						ind.V_INDACCSEC_CONTENIDO_SELECCION_CANASTA
+						contenidoSeleccionCanasta,
+						ind.V_INDACCSEC_CONTENIDO_CALCULO_PONDERACION
+						contenidoCalculoPonderacion,
+						ind.V_INDACCSEC_PATH_CANASTA
+						pathCanasta,
+						ind.V_INDACCSEC_PATH_CANASTA_HIST pathCanastaHist
+						from
+						portalbvc.tbindaccsec ind
+						where ind.v_indaccsec_codigo =
+						':codIndice'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>actualizarContenidosPorIndice</value>
+					</key>
+					<value>
+						update portalbvc.tbindaccsec set
+						:seters
+						where
+						V_INDACCSEC_CODIGO = ':codIndice'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenIndicesHome</value>
+					</key>
+					<value>
+						select indProp.v_indaccsec_nombre nombreIndice,
+						ind.v_indacc_codigo indice,
+						ind.v_indacc_valor_hoy valorHoy,
+						ind.v_indacc_valor_ayer valorAyer,
+						ind.v_indacc_var_dia
+						variacionHoy,
+						(ind.v_indacc_valor_hoy - ind.v_indacc_valor_ayer)
+						variacionAbs,
+						ind.v_indacc_fecha fechaInt
+						from unicabd.tbindacc ind
+						INNER JOIN portalbvc.tbindaccsec indProp ON ind.v_indacc_codigo =
+						indProp.v_indaccsec_codigo
+						where ind.v_indacc_codigo :operador IN
+						('IIRC', 'ICSC', 'ICAP')
+						and ind.v_indacc_fecha = :fecha
+						order by
+						indProp.v_indaccsec_home,
+						ind.v_indacc_codigo
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenIndices</value>
+					</key>
+					<value>
+						select indProp.v_indaccsec_nombre nombreIndice,
+						ind.v_indacc_codigo indice,
+						ind.v_indacc_valor_hoy valorHoy,
+						ind.v_indacc_valor_ayer valorAyer,
+						ind.v_indacc_var_dia
+						variacionHoy,
+						"RENTA VARIABLE" mercado,
+						(ind.v_indacc_valor_hoy - ind.v_indacc_valor_ayer)
+						variacionAbs,
+						ind.v_indacc_fecha fechaInt
+						from unicabd.tbindacc ind
+						INNER JOIN portalbvc.tbindaccsec indProp ON ind.v_indacc_codigo =
+						indProp.v_indaccsec_codigo and indProp.V_INDACCSEC_HOME!=0
+						and indProp.v_indaccsec_codigo NOT IN ('IC20','IGBC')
+						where  ind.v_indacc_fecha = :fecha
+						order by nombreIndice
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenIndicesRF</value>
+					</key>
+					<value>
+						select indProp.v_indaccsec_nombre nombreIndice,
+						ind.V_INDRF_COD_INDICE indice,
+						ind.v_indrf_valor_hoy valorHoy,
+						ind.v_indrf_valor_ayer valorAyer,
+						ind.v_indrf_var_dia variacionHoy,
+						"RENTA FIJA" mercado,
+						(ind.v_indrf_valor_hoy - ind.v_indrf_valor_ayer) variacionAbs,
+						ind.v_INDRF_var_anual variacionAnual,
+						valor12Meses.V_INDRF_VALOR_HOY valor12Meses,
+						ind.v_indrf_fecha fechaInt
+						from unicabd.tbindrf
+						ind
+						left join (select
+						indI.V_INDRF_COD_INDICE indice,
+						indI.V_INDRF_VALOR_HOY,
+						indI.v_indrf_fecha fecha12
+						from
+						unicabd.tbindrf indI
+						where indI.v_indrf_fecha >= :fecha -10000
+						group by indice
+						order by 1,3)
+						as valor12Meses on ind.V_INDRF_COD_INDICE=valor12Meses.indice 
+						INNER JOIN
+						portalbvc.tbindaccsec indProp ON
+						ind.V_INDRF_COD_INDICE =
+						indProp.v_indaccsec_codigo and indProp.V_INDACCSEC_HOME!=0
+						where ind.v_indrf_fecha = :fecha
+						order by nombreIndice
+						</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenIndicesBuscarRF</value>
+					</key>
+					<value>
+						select indProp.v_indaccsec_nombre nombreIndice,
+#						ind.V_INDRF_COD_INDICE indice,						ind.v_indrf_valor_hoy valorHoy,
+						ind.V_INDRF_VAR_TIR tir,
+						ind.V_INDRF_VAR_DURATION duracion,
+						ind.v_indrf_valor_ayer valorAyer,
+						ind.v_indrf_var_dia variacionHoy,
+						"RENTA FIJA" mercado,
+						(ind.v_indrf_valor_hoy - ind.v_indrf_valor_ayer) variacionAbs,
+						ind.v_INDRF_var_anual variacionAnual,
+						valor12Meses.V_INDRF_VALOR_HOY valor12Meses,
+						ind.v_indrf_fecha fechaInt
+						from unicabd.tbindrf
+						ind
+						left join (select
+						indI.V_INDRF_COD_INDICE indice,
+						indI.V_INDRF_VALOR_HOY,
+						indI.v_indrf_fecha fecha12
+						from
+						unicabd.tbindrf indI
+						where indI.v_indrf_fecha >= :fecha -10000
+						group by indice
+						order by 1,3)
+						as valor12Meses on ind.V_INDRF_COD_INDICE=valor12Meses.indice 
+						INNER JOIN
+						portalbvc.tbindaccsec indProp ON
+						ind.V_INDRF_COD_INDICE =
+						indProp.v_indaccsec_codigo and indProp.V_INDACCSEC_HOME!=0
+						where ind.v_indrf_fecha = :fecha
+						and ind.V_INDRF_COD_INDICE= ':codIndice'
+						order by ind.v_indrf_fecha desc,
+						indProp.v_indaccsec_home,
+						ind.V_INDRF_COD_INDICE
+						</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenIndicesHOMERF</value>
+					</key>
+					<value>
+						select indProp.v_indaccsec_nombre nombreIndice,
+						ind.V_INDRF_COD_INDICE indice,
+						ind.v_indrf_valor_hoy valorHoy,
+						ind.v_indrf_valor_ayer valorAyer,
+						ind.v_indrf_var_dia variacionHoy,
+						(ind.v_indrf_valor_hoy - ind.v_indrf_valor_ayer) variacionAbs,
+						ind.v_INDRF_var_anual variacionAnual,
+						valor12Meses.V_INDRF_VALOR_HOY valor12Meses,
+						ind.v_indrf_fecha fechaInt
+						from unicabd.tbindrf
+						ind
+						left join (select
+						indI.V_INDRF_COD_INDICE indice,
+						indI.V_INDRF_VALOR_HOY,
+						indI.v_indrf_fecha fecha12
+						from
+						unicabd.tbindrf indI
+						where indI.v_indrf_fecha >= :fecha -10000
+						group by indice
+						order by 1,3)
+						as valor12Meses on ind.V_INDRF_COD_INDICE=valor12Meses.indice 
+						INNER JOIN
+						portalbvc.tbindaccsec indProp ON
+						ind.V_INDRF_COD_INDICE =
+						indProp.v_indaccsec_codigo
+						where
+						ind.V_INDRF_COD_INDICE IN ('CTES','CTCP','CTLP')
+						and ind.v_indrf_fecha = :fecha
+						order by ind.v_indrf_fecha desc,
+						indProp.v_indaccsec_home,
+						ind.V_INDRF_COD_INDICE
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenIndicesMM</value>
+					</key>
+					<value>
+						select indProp.v_indaccsec_nombre nombreIndice,
+						ind.V_ibrindc_COD_INDICE indice,
+						ind.v_ibrindc_valorindice valorHoy,
+						ind.v_ibrindc_varindice variacionHoy,
+						"MERCADO MONETARIO" mercado,
+						(ind.v_ibrindc_valorindice/(ind.v_ibrindc_varindice+1)) valorAyer,
+						(ind.v_ibrindc_valorindice - ((ind.v_ibrindc_valorindice/(ind.v_ibrindc_varindice+1)))) variacionAbs,
+                        (select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= :fecha -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1)valor12Meses,
+						((ind.v_ibrindc_valorindice -(select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= CONCAT(YEAR(:fecha),'0101') -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1))/
+						(select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= CONCAT(YEAR(:fecha),'0101') -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1))variacionAnual,
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') fechaInt
+						from unicabd.tbibrindc
+						ind
+						INNER JOIN
+						portalbvc.tbindaccsec indProp ON
+						ind.V_ibrindc_COD_INDICE =
+						indProp.v_indaccsec_codigo and indProp.V_INDACCSEC_HOME!=0
+						where
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') = :fecha
+						order by nombreIndice
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenIndicesBuscarMM</value>
+					</key>
+					<value>
+						select indProp.v_indaccsec_nombre nombreIndice,
+						ind.V_ibrindc_COD_INDICE indice,
+						ind.v_ibrindc_valorindice valorHoy,
+						ind.v_ibrindc_varindice variacionHoy,
+						"MERCADO MONETARIO" mercado,
+						(ind.v_ibrindc_valorindice/(ind.v_ibrindc_varindice+1)) valorAyer,
+						(ind.v_ibrindc_valorindice - ((ind.v_ibrindc_valorindice/(ind.v_ibrindc_varindice+1)))) variacionAbs,
+                        (select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= :fecha -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1)valor12Meses,
+						((ind.v_ibrindc_valorindice -(select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= CONCAT(YEAR(:fecha),'0101') -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1))/
+						(select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= CONCAT(YEAR(:fecha),'0101') -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1))variacionAnual,
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') fechaInt
+						from unicabd.tbibrindc
+						ind
+						INNER JOIN
+						portalbvc.tbindaccsec indProp ON
+						ind.V_ibrindc_COD_INDICE =
+						indProp.v_indaccsec_codigo and indProp.V_INDACCSEC_HOME!=0
+						where
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') = :fecha
+						and ind.V_ibrindc_COD_INDICE= ':codIndice'
+						order by date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc,
+						indProp.v_indaccsec_home,
+						ind.V_ibrindc_COD_INDICE
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerResumenIndicesHOMEMM</value>
+					</key>
+					<value>
+						select indProp.v_indaccsec_nombre nombreIndice,
+						ind.V_ibrindc_COD_INDICE indice,
+						ind.v_ibrindc_valorindice valorHoy,
+						ind.v_ibrindc_varindice variacionHoy,
+						(ind.v_ibrindc_valorindice/(ind.v_ibrindc_varindice+1)) valorAyer,
+						(ind.v_ibrindc_valorindice - ((ind.v_ibrindc_valorindice/(ind.v_ibrindc_varindice+1)))) variacionAbs,
+                        (select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= :fecha -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1)valor12Meses,
+						((ind.v_ibrindc_valorindice -(select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= CONCAT(YEAR(:fecha),'0101') -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1))/
+						(select
+						indI.V_ibrindc_valorindice
+						from
+						unicabd.tbibrindc indI
+						where
+						date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') &lt;= CONCAT(YEAR(:fecha),'0101') -
+						10000
+						order by date_format(indI.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc 
+						limit 1))variacionAnual,
+						date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') fechaInt
+						from unicabd.tbibrindc
+						ind
+						INNER JOIN
+						portalbvc.tbindaccsec indProp ON
+						ind.V_ibrindc_COD_INDICE =
+						indProp.v_indaccsec_codigo
+						where
+						ind.V_ibrindc_COD_INDICE = 'IIBR'
+						and date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') = :fecha
+						order by date_format(ind.V_IBRINDC_FECHAVIGENCIA,'%Y%m%d') desc,
+						indProp.v_indaccsec_home,
+						ind.V_ibrindc_COD_INDICE
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoHistoricoPorIndice</value>
+					</key>
+					<value>
+						SELECT indi.v_indacc_fecha fechaGrafico,
+						indi.v_indacc_valor_hoy valorCierre
+						FROM unicabd.TBINDACC indi
+						WHERE indi.v_indacc_codigo = ':codIndice'
+						AND indi.v_indacc_fecha
+						&lt; :fecha
+						ORDER BY indi.v_indacc_fecha DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoHistoricoPorIndiceHOME</value>
+					</key>
+					<value>
+						SELECT indi.v_indacc_fecha fechaGrafico,
+						indi.v_indacc_valor_hoy valorCierre
+						FROM unicabd.TBINDACC indi
+						WHERE indi.v_indacc_codigo = ':codIndice'
+						AND indi.v_indacc_fecha
+						&lt; :fecha
+						AND DATEDIFF(':fecha',indi.v_indacc_fecha) &lt;=365
+						ORDER BY indi.v_indacc_fecha DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoHistoricoPorIndiceRF</value>
+					</key>
+					<value>
+						SELECT date_format(indi.V_INDRF_FECHA,'%Y%m%d') fechaGrafico,
+						indi.v_indrf_valor_hoy valorCierre
+						FROM unicabd.tbindrf indi
+						WHERE
+						indi.V_INDRF_COD_INDICE = ':codIndice'
+						AND indi.v_indrf_fecha &lt;
+						':fecha'
+						ORDER BY
+						indi.v_indrf_fecha DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoHistoricoPorIndiceHOMERF</value>
+					</key>
+					<value>
+						SELECT date_format(indi.V_INDRF_FECHA,'%Y%m%d') fechaGrafico,
+						indi.v_indrf_valor_hoy valorCierre
+						FROM unicabd.tbindrf indi
+						WHERE
+						indi.V_INDRF_COD_INDICE = ':codIndice'
+						AND indi.v_indrf_fecha &lt;
+						':fecha'
+						AND DATEDIFF(':fecha',indi.v_indrf_fecha) &lt;=365
+						ORDER BY
+						indi.v_indrf_fecha DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoHistoricoPorIndiceMM</value>
+					</key>
+					<value>
+						SELECT indi.V_IBRINDC_FECHAVIGENCIA fechaGrafico,
+						indi.v_ibrindc_valorindice valorCierre
+						FROM unicabd.tbibrindc indi
+						WHERE
+						indi.V_ibrindc_COD_INDICE = ':codIndice'
+						AND indi.v_ibrindc_fecha &lt;
+						':fecha'
+						ORDER BY
+						indi.v_ibrindc_fecha DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoHistoricoPorIndiceHOMEMM</value>
+					</key>
+					<value>
+						SELECT indi.V_IBRINDC_FECHAVIGENCIA fechaGrafico,
+						indi.v_ibrindc_valorindice valorCierre
+						FROM unicabd.tbibrindc indi
+						WHERE
+						indi.V_ibrindc_COD_INDICE = ':codIndice'
+						AND indi.v_ibrindc_fecha &lt;
+						':fecha'
+						AND DATEDIFF(':fecha',indi.v_ibrindc_fecha) &lt;=365
+						ORDER BY
+						indi.v_ibrindc_fecha DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoHistoricoPorIndiceHome</value>
+					</key>
+					<value>
+						SELECT indi.v_indacc_fecha fechaGrafico,
+						indi.v_indacc_valor_hoy valorCierre
+						FROM unicabd.TBINDACC indi
+						WHERE indi.v_indacc_codigo = ':codIndice'
+						AND indi.v_indacc_fecha
+						&lt; :fecha AND indi.v_indacc_fecha >= (:fecha - 10000)
+						ORDER BY
+						indi.v_indacc_fecha DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoIntradiaPorIndice</value>
+					</key>
+					<value>
+						SELECT DISTINCT(concat(substr(t.v_indacc_time_slot,1,10), ':',
+						substr(t.v_indacc_time_slot,12))) AS fechaString ,
+						t.v_indacc_valor_hoy
+						AS valorCierre,
+						t.v_indacc_valor_ayer AS valorUltimoCierre
+						FROM
+						tbindtra t
+						inner join tbindacc rv on
+						rv.V_INDACC_CODIGO=
+						t.v_indacc_codigo
+						AND DATEDIFF(CURDATE(),rv.V_INDACC_FECHA) &lt;=365
+						WHERE t.v_indacc_codigo = ':codIndice'
+						order by t.v_indacc_time_slot
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoIntradiaPorIndiceRF</value>
+					</key>
+					<value>
+						SELECT DISTINCT(concat(substr(v_indacc_time_slot,1,10), ':',
+						substr(v_indacc_time_slot,12))) AS fechaString ,
+						v_indacc_valor_hoy
+						AS valorCierre,
+						v_indacc_valor_ayer AS valorUltimoCierre
+						FROM
+						tbindtra t
+						inner join tbindrf rf on
+						rf.V_INDRF_COD_INDICE=
+						v_indacc_codigo
+						AND DATEDIFF(CURDATE(),rf.V_INDRF_FECHA) &lt;=365
+						WHERE v_indacc_codigo = ':codIndice'
+						order by t.v_indacc_time_slot
+					</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns_0:clientServiceBindings xmlns:ns_0="urn:tibco:ps:deployment:descriptors:client_service_bindings">
+    <ns_0:clientServiceNameColumnTitle>Portlet Application Service Client</ns_0:clientServiceNameColumnTitle>
+    <ns_0:clientServiceEntityTypes>com.tibco.ps.model.service.pagesvc.PageServiceConfig</ns_0:clientServiceEntityTypes>
+    <ns_0:clientServiceEntityTypes>com.tibco.ps.model.service.wsrpsvc.WsrpServiceConfig</ns_0:clientServiceEntityTypes>
+</ns_0:clientServiceBindings>

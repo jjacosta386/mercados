@@ -1,0 +1,612 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="consultasMercadosAccionesMGC" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>TTVMasNegociadosDiaActual</value>
+					</key>
+					<value>
+						SELECT
+						prim.v_rftr_nemo AS nemoTecnico,
+						SUM(prim.v_rftr_cantidad) cantidad,
+						SUM(prim.v_rftr_monto) Volumen
+						FROM tbrftr prim
+						INNER JOIN tbactv seg ON seg.v_actv_hor_gra = prim.v_rftr_hor_gra
+						INNER JOIN tbacmi ON v_acmi_nemo = v_rftr_nemo
+						WHERE prim.v_rftr_hor_gra &lt;= ':fechaFin'
+						AND prim.v_rftr_tipofe = 'Y'
+						AND v_acmi_mgc = 'M'
+						GROUP BY prim.v_rftr_nemo
+						ORDER BY Volumen DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>TTVMasNegociadosDiaPasado</value>
+					</key>
+					<value>
+						SELECT
+						nemo_vol_total_nemo_acc nemoTecnico, 
+						cantidad_vol_total_nemo_acc cantidad, 
+						volumen_vol_total_nemo_acc volumen
+						FROM p_volumen_nemo_ttv_dia
+						WHERE time_slot_vol_total_nemo_acc = ':fechaFin'
+						AND mgc = 'M'
+						ORDER BY volumen DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerUltimaHoraMarcacion</value>
+					</key>
+					<value>
+						SELECT
+						MAX(hora) hora
+						FROM
+							(SELECT
+							MAX(tr.v_actr_hor_gra) hora
+							FROM unicabd.tbactr tr
+							INNER JOIN tbacmi ON v_acmi_nemo = v_actr_nemo
+							WHERE tr.v_actr_nemo = ':nemo'
+							AND tr.v_actr_hor_gra LIKE ':fechaCons%'
+							AND tr.v_actr_compla &lt;&gt; 'P'
+							AND tr.v_actr_ind_fija = 'S'
+							GROUP BY v_actr_nemo
+							UNION ALL
+							SELECT MAX(tra.v_actra_hor_gra) hora
+							FROM unicabd.tbactra tra
+							INNER JOIN tbacmi ON v_acmi_nemo = v_actra_nemo
+							WHERE tra.v_actra_nemo = ':nemo'
+							AND tra.v_actra_hor_gra LIKE ':fechaCons%'
+							AND tra.v_actra_compla &lt;&gt; 'P'
+							AND tra.v_actra_ind_fija = 'S'
+							GROUP BY v_actra_nemo) horas
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerVolumenTotalPorFecha</value>
+					</key>
+					<value>
+						SELECT
+						time_slot_vol_total_acc fecha,
+						total_cv_vol_total_acc compraventa,
+						total_repos_vol_total_acc repos,
+						total_ttv_vol_total_acc ttv,
+						vol_acciones_mgc,
+						vol_repos_mgc,
+						vol_ttv_mgc,
+						vol_etf_mgc
+						FROM :tabla
+						WHERE time_slot_vol_total_acc :operador= ':fechaFin'
+						ORDER BY time_slot_vol_total_acc DESC LIMIT 1;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>accionesMasTransadasDiaActual</value>
+					</key>
+					<value>
+						SELECT
+						a.nemo nemoTecnico,
+						a.volumen volumen,
+						b.precio ultimoPrecio,
+						a.cantidad cantidad,
+						0 variacion
+						FROM
+							(SELECT
+							v_actr_nemo nemo,
+							SUM(v_actr_monto) volumen,
+							SUM(v_actr_cantidad) cantidad
+							FROM unicabd.tbactr
+							INNER JOIN tbacmi ON v_acmi_nemo = v_actr_nemo
+							WHERE v_actr_plaliq  IN ('', 'PRC')
+							AND v_actr_compla &lt;&gt; 'P'
+							AND v_actr_hor_gra &lt; ':fechaFin'
+							AND v_acmi_mgc = 'M'
+							GROUP BY v_actr_nemo) a
+						LEFT JOIN
+							(SELECT
+							v_actr_nemo nemo,
+							v_actr_precio precio
+							FROM unicabd.tbactr
+							INNER JOIN
+								(SELECT
+								v_actr_nemo nemo,
+								MAX(v_actr_hor_gra) fecha
+								FROM unicabd.tbactr
+								INNER JOIN tbacmi ON v_acmi_nemo = v_actr_nemo
+								WHERE v_actr_ind_fija = 'S'
+								AND v_actr_plaliq IN ('', 'PRC')
+								AND v_actr_por_oferta_sw = 'N'
+								AND v_actr_hor_gra &lt; ':fechaFin'
+								AND v_acmi_mgc = 'M'
+								GROUP BY v_actr_nemo) fechas
+							ON nemo  = v_actr_nemo AND fecha = v_actr_hor_gra) b
+						ON A.nemo = B.nemo 
+						ORDER BY volumen DESC;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>accionesMasTransadasDiaPasado</value>
+					</key>
+					<value>
+						SELECT
+						v_acmta_nemo nemoTecnico,
+						v_acmta_monto volumen,
+						v_acmta_pre_cie ultimoPrecio,
+						v_acmta_uni_tra cantidad,
+						v_acmta_var_pre variacion
+						FROM unicabd.tbacmta t
+						INNER JOIN tbacmi ON v_acmi_nemo = v_acmta_nemo
+						WHERE t.v_acmta_fecha = ':fechaFin'
+						AND v_acmta_uni_tra > 0
+						AND v_acmi_mgc = 'M'
+						ORDER BY 2 DESC;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>etfsMasTransadasDiaPasado</value>
+					</key>
+					<value>
+						SELECT
+						v_acmta_nemo nemoTecnico,
+						v_acmta_monto volumen,
+						v_acmta_pre_cie ultimoPrecio,
+						v_acmta_uni_tra cantidad,
+						v_acmta_var_pre variacion
+						FROM unicabd.tbacmta t
+						INNER JOIN tbacmi ON v_acmi_nemo = v_acmta_nemo
+						WHERE t.v_acmta_fecha = ':fechaFin'
+						AND v_acmta_uni_tra > 0
+						AND v_acmi_mgc = 'E'
+						ORDER BY 2 DESC;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>etfsMasTransadasDiaActual</value>
+					</key>
+					<value>
+						SELECT
+						a.nemo nemoTecnico,
+						a.volumen volumen,
+						b.precio ultimoPrecio,
+						a.cantidad cantidad,
+						0 variacion
+						FROM
+							(SELECT
+							v_actr_nemo nemo,
+							SUM(v_actr_monto) volumen,
+							SUM(v_actr_cantidad) cantidad
+							FROM unicabd.tbactr
+							INNER JOIN tbacmi ON v_acmi_nemo = v_actr_nemo
+							WHERE v_actr_plaliq  IN ('', 'PRC')
+							AND v_actr_compla &lt;&gt; 'P'
+							AND v_actr_hor_gra &lt; ':fechaFin'
+							AND v_acmi_mgc = 'E'
+							GROUP BY v_actr_nemo) a
+						LEFT JOIN
+							(SELECT
+							v_actr_nemo nemo,
+							v_actr_precio precio
+							FROM unicabd.tbactr
+							INNER JOIN
+								(SELECT
+								v_actr_nemo nemo,
+								MAX(v_actr_hor_gra) fecha
+								FROM unicabd.tbactr
+								INNER JOIN tbacmi ON v_acmi_nemo = v_actr_nemo
+								WHERE v_actr_ind_fija = 'S'
+								AND v_actr_plaliq IN ('', 'PRC')
+								AND v_actr_por_oferta_sw = 'N'
+								AND v_actr_hor_gra &lt; ':fechaFin'
+								AND v_acmi_mgc = 'E'
+								GROUP BY v_actr_nemo) fechas
+							ON nemo  = v_actr_nemo AND fecha = v_actr_hor_gra) b
+						ON A.nemo = B.nemo 
+						ORDER BY volumen DESC;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ultimoPrecioAccion</value>
+					</key>
+					<value>
+						SELECT
+						t.v_ultpre_fec_ult_pre,
+						t.v_ultPre_ult_pre precioAnterior
+						FROM unicabd.tbultpre t
+						INNER JOIN tbacmi ON v_acmi_nemo = v_ultpre_nemo
+						WHERE t.v_ultpre_nemo = ':nemo'
+						AND t.v_ultpre_fec_ult_pre &lt; :fechaFin
+						ORDER BY t.v_ultpre_fec_ult_pre DESC LIMIT 1
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ReposMasTransadosDiaActual</value>
+					</key>
+					<value>
+						SELECT
+						repos.v_rftr_nemo nemoTecnico,
+						SUM(repos.v_rftr_cantidad) cantidad,
+						SUM(repos.v_rftr_monto) volumen
+						FROM unicabd.tbrftr repos
+						INNER JOIN tbacmi ON v_acmi_nemo = v_rftr_nemo
+						WHERE repos.v_rftr_tipofe = 'A'
+						AND repos.v_rftr_hor_gra &lt; ':fechaFin'
+						AND v_acmi_mgc = 'M'
+						GROUP BY repos.v_rftr_nemo
+						ORDER BY volumen DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ReposMasTransadosDiaPasado</value>
+					</key>
+					<value>
+						SELECT
+						nemo_vol_total_nemo_acc nemoTecnico, 
+						cantidad_vol_total_nemo_acc cantidad, 
+						volumen_vol_total_nemo_acc volumen
+						FROM p_volumen_nemo_repos_dia
+						WHERE time_slot_vol_total_nemo_acc = ':fechaFin'
+						AND mgc = 'M'
+						ORDER BY volumen DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>EmisorPorCodigo</value>
+					</key>
+					<value>
+						SELECT
+						ter.v_emi_razon_social AS razonSocial,
+						ter.v_emi_nombre AS nombreEmr,
+						ter.v_emi_emisor AS sigla,
+						ter.v_emi_nit AS nit,
+						mtdSec.valor_mtd AS sector,
+						ter.v_emi_representante AS presidente,
+						ter.v_emi_direccion AS direccion,
+						mtdCiu.valor_mtd AS ciudad,
+						ter.v_emi_situacion AS situacion,
+						ter.v_emi_telefono AS telefono,
+						ter.v_emi_fax AS fax
+						FROM unicabd.tbutemis ter
+						LEFT JOIN portalbvc.metadata_abreviaturas mtdCiu ON (mtdCiu.clave_mtd = ter.v_emi_ciudad AND mtdCiu.id_tipo_metadata = 1)
+						LEFT JOIN portalbvc.metadata_abreviaturas mtdSec ON (mtdSec.clave_mtd = ter.v_emi_sector AND mtdsec.id_tipo_metadata = 2)
+						WHERE ter.V_EMI_NEMO = ':operador'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>qtobinYRpgPorNemo</value>
+					</key>
+					<value>
+						SELECT
+						CASE WHEN v_ultpre_ult_pre IS NULL THEN 1 ELSE (v_ultpre_ult_pre / v_acmi_patri_con) END AS qtobin,
+						CASE WHEN v_ultpre_ult_pre IS NULL THEN v_acmi_patri_con ELSE v_ultpre_ult_pre END / v_conemi_upa AS rpg
+						FROM boletin.tbconemi, tbultpre, tbacmi
+						WHERE tbconemi.v_conemi_nemo = ':nemo'
+						AND tbconemi.v_conemi_trimestre = (SELECT
+										MAX(v_conemi_trimestre) fecha
+										FROM boletin.tbconemi t
+										WHERE v_conemi_nemo = ':nemo')
+						AND tbultpre.v_ultpre_fec_ult_pre = (SELECT
+										MAX(v_ultpre_fec_ult_pre)
+										FROM tbultpre t
+										WHERE v_ultpre_nemo = ':nemo')
+						AND tbultpre.v_ultpre_nemo = ':nemo'
+						AND tbacmi.v_acmi_nemo     = ':nemo'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>operacionesCompraventa</value>
+					</key>
+					<value>
+						SELECT
+						t1.v_actr:a_ind_fija indFija,
+						t1.v_actr:a_hor_gra fechaHoraString,
+						t1.v_actr:a_nemo nemotecnico,
+						t1.v_actr:a_cantidad cantidad,
+						t1.v_actr:a_precio precio,
+						t1.v_actr:a_monto volumen,
+						IF(v_actr:a_por_oferta_sw = 'P','OPA', IF(v_actr:a_por_oferta_sw = 'M', 'Martillo', CASE WHEN V_actr:a_plaliq = 'EXC' THEN 'Excluida' ELSE 'Normal' END)) tipoOperacion,
+						CASE WHEN (t1.v_actr:a_Prom_liq_com = 'S' OR v_actr:a_prom_liq_ven    = 'S' ) THEN 'Si' ELSE '' END promotorLiquidez,
+						CASE WHEN (t1.v_actr:a_origen_venta = 'E' OR v_actr:a_origen_compra   = 'E' ) THEN 'Si' ELSE '' END creadormercado,
+						v_cumope_fec_cump fechaCumplientoString,
+						CASE WHEN (t1.v_actr:a_mercado = 'P') THEN 'Primario' ELSE 'Secundario' END mercado
+						FROM unicabd.tbactr:a t1
+						INNER JOIN tbacmi ON v_acmi_nemo = v_actr:a_nemo
+						INNER JOIN
+							(SELECT
+							v_cumope_fec_cump,
+							v_cumope_folio,
+							v_cumope_hor_gra
+							FROM tbcumope
+							WHERE v_cumope_nemo = ':nemo'
+							AND v_cumope_hor_gra  >= ':fechaIni'
+							AND v_cumope_hor_gra &lt;= ':fechaFin') cumop 
+						ON (t1.v_actr:a_hor_gra = cumop.v_cumope_hor_gra AND t1.v_actr:a_folio   = cumop.v_cumope_folio)
+						WHERE  t1.v_actr:a_nemo     = ':nemo'
+						AND t1.v_actr:a_hor_gra >= ':fechaIni'
+						AND t1.v_actr:a_hor_gra &lt;= ':fechaFin'
+						AND t1.v_actr:a_plaliq  IN ('EXC','','PRC')
+						AND v_acmi_mgc IN ('M','E')
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>GraficoIntradia</value>
+					</key>
+					<value>
+						SELECT
+						MAX(v_actr_cantidad) AS volumen,
+						MAX(v_actr_precio) AS valorCierre,
+						SUBSTR(v_actr_hor_gra,1,16) AS fechaString   
+						FROM tbactr
+						INNER JOIN tbacmi ON v_acmi_nemo = v_actr_nemo
+						WHERE v_actr_nemo = ':nemo'
+						AND v_actr_hor_gra >= ':fechaIni'
+						AND v_actr_hor_gra &lt; ':fechaFin'
+						AND v_actr_ind_fija = 'S'
+						AND v_actr_plaliq IN ('', 'PRC')
+						AND v_actr_por_oferta_sw = 'N'
+						AND v_acmi_mgc IN ('M','E')
+						GROUP BY SUBSTR(v_actr_hor_gra,1, 16)
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>TickerAcciones</value>
+					</key>
+					<value>
+						SELECT
+						nemo nemo,
+						precio ultimoPrecioTasa,
+						hora horaUltimaMarcacion
+						FROM
+							((SELECT
+							v_actr_nemo,
+							SUM(v_actr_monto) monto
+							FROM unicabd.tbactr
+							INNER JOIN tbacmi ON v_acmi_nemo = v_actr_nemo
+							WHERE v_actr_hor_gra &lt; ':fechaFin' AND v_acmi_mgc = 'M'
+							GROUP BY v_actr_nemo
+							ORDER BY monto DESC LIMIT 20)
+
+							UNION DISTINCT
+							
+							(SELECT
+							NOMBRE_TIT,
+							0
+							FROM portalbvc.titulo_valor
+							WHERE ticker = 1)) nemos
+						INNER JOIN
+							(SELECT
+							v_actr_nemo nemo,
+							v_actr_precio precio,
+							v_actr_hor_gra hora
+							FROM unicabd.tbactr
+							INNER JOIN
+								(SELECT
+								v_actr_nemo nemo,
+								MAX(v_actr_hor_gra) fecha
+								FROM unicabd.tbactr
+								WHERE v_actr_ind_fija = 'S'
+								AND v_actr_plaliq IN ('', 'PRC')
+								AND v_actr_por_oferta_sw = 'N'
+								AND v_actr_hor_gra &lt; ':fechaFin'
+								GROUP BY v_actr_nemo) fechas
+							ON nemo = v_actr_nemo AND fecha = v_actr_hor_gra
+							GROUP BY v_actr_nemo) precios
+						ON v_actr_nemo = nemo
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>listaAccionesMgc</value>
+					</key>
+					<value>
+						SELECT
+                        v_emi_razon_social razonSocial,
+                        v_emi_nemo nombreEmr,
+                        v_acmi_nemo nemoTecnico,
+                        v_acmi_cod_isin_1 isin,
+                        v_emi_pais_origen pais,
+                        v_emi_moneda_origen moneda,
+                        v_emi_cot_principal cotizacion,
+                        date_format(v_emi_fecha_listado,'%Y-%m-%d') fechaList,
+                        v_emi_patrocinador patrocinador
+                        FROM unicabd.tbacmi
+                        INNER JOIN unicabd.tbutemis ON v_acmi_emisor = v_emi_emisor
+                        WHERE v_acmi_estado = '0' AND v_acmi_mgc ='M';
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>listaEtfMgc</value>
+					</key>
+					<value>
+						SELECT
+                        v_emi_razon_social razonSocial,
+                        v_emi_nemo nombreEmr,
+                        v_acmi_nemo nemoTecnico,
+                        v_acmi_cod_isin_1 isin,
+                        v_emi_pais_origen pais,
+                        v_emi_moneda_origen moneda,
+                        v_emi_cot_principal cotizacion,
+                        date_format(v_emi_fecha_listado,'%Y-%m-%d') fechaList,
+                        v_emi_patrocinador patrocinador
+                        FROM unicabd.tbacmi
+                        INNER JOIN unicabd.tbutemis ON v_acmi_emisor = v_emi_emisor
+                        WHERE v_acmi_estado = '0' AND v_acmi_mgc ='E';
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>listaTotalAccionesETFMgc</value>
+					</key>
+					<value>
+						SELECT
+                        v_emi_razon_social razonSocial,
+                        v_emi_nemo nombreEmr,
+                        v_acmi_nemo nemoTecnico,
+                        v_acmi_cod_isin_1 isin,
+                        v_emi_pais_origen pais,
+                        v_emi_moneda_origen moneda,
+                        v_emi_cot_principal cotizacion,
+                        date_format(v_emi_fecha_listado,'%Y-%m-%d') fechaList,
+                        v_emi_patrocinador patrocinador,
+                        emi.pagina_patrocinador pag_patro
+                        FROM unicabd.tbacmi
+                        INNER JOIN unicabd.tbutemis ON v_acmi_emisor = v_emi_emisor
+                        INNER JOIN PORTALBVC.emisor emi ON CODIGO_EMR = V_EMI_EMISOR
+                        WHERE v_acmi_estado != 'E' AND v_acmi_mgc IN ('M', 'E') order by  razonSocial;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaListaFiltro</value>
+					</key>
+					<value>
+						SELECT
+						v_emi_razon_social razonSocial,
+						v_acmi_nemo nemoTecnico,
+						v_acmi_cod_isin_1 isin,
+						v_emi_pais_origen pais,
+						v_emi_moneda_origen moneda,
+						v_emi_cot_principal cotizacion,
+						date_format(v_emi_fecha_listado,'%Y-%m-%d') fechaList,
+						v_emi_patrocinador patrocinador,
+                        emi.pagina_patrocinador pag_patro
+						FROM unicabd.tbacmi
+						INNER JOIN unicabd.tbutemis ON v_acmi_emisor = v_emi_emisor
+						INNER JOIN PORTALBVC.emisor emi ON CODIGO_EMR = V_EMI_EMISOR
+						WHERE v_acmi_estado = '0' AND v_acmi_mgc IN ('M', 'E') 
+					    :consultaListaMGC;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaListaPais</value>
+					</key>
+					<value>
+						SELECT
+						distinct(v_emi_pais_origen) pais
+						FROM unicabd.tbutemis where v_emi_pais_origen!='';
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaListaPatrocinador</value>
+					</key>
+					<value>
+						SELECT
+						distinct(v_emi_patrocinador) patrocinador
+						FROM unicabd.tbutemis where v_emi_patrocinador!='';
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaListaCotiza</value>
+					</key>
+					<value>
+						SELECT
+						distinct(v_emi_cot_principal) cotizacion
+						FROM unicabd.tbutemis where v_emi_cot_principal!='' ;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaNemoEmisor</value>
+					</key>
+					<value>
+						SELECT
+						p.ID_EMISOR idEmisor,
+						p.NOMBRE_EMR nombreEmr
+						FROM portalbvc.emisor p
+						INNER JOIN unicabd.tbacmi ON v_acmi_emisor = codigo_emr
+						WHERE v_acmi_nemo = ':nemoEmisor'
+						LIMIT 1
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaTipoMGC</value>
+					</key>
+					<value>
+						select v_ACMI_mgc as tipoMGC
+						from tbacmi where v_ACMI_nemo = ':nemoEmisor'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>horarioNegociacionMGC</value>
+					</key>
+					<value>
+						SELECT descripcion,
+							   hora_apertura,
+							   hora_cierre
+					    FROM portalbvc.segmento_mercado s
+					    WHERE s.ID_SEGMENTO_MERCADO = ':segmentoMercado'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>datosExtendidosAccionesMGC</value>
+					</key>
+					<value>
+						SELECT V_EMI_PAIS_ORIGEN paisOrigen,
+							   V_EMI_PATROCINADOR patrocinador,
+							   V_EMI_COT_PRINCIPAL cotizacionPrincipal,
+							   V_EMI_OTRAS_BOLSAS otrasBolsas,
+							   V_EMI_CUSIP cusip
+					    FROM unicabd.tbutemis tbu
+					    WHERE tbu.V_EMI_NEMO = ':nemo'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaCotizaPaisMGC</value>
+					</key>
+					<value>
+						select emisor as empresa,especie as accion,cantidad as cantidad,volumen as volumen, url.url_emisor as url_emisor, 
+ 						precioMaximo as precioMaximo,precioMinimo as precioMinimo,precioMedio as precioMedio,  url.url_bolsa as url_bolsa,
+ 						precioUltimo as precioUltimo,precioAnterior as precioAnterior,variacionPuntos as variacion, 
+ 						variacionPorcentual as variacionPorcentual, cotizacion_principal as cotizacion from unicabd.preciosmgc,portalbvc.url_emisor url
+ 						where url.codigo=especie 
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaListaCotizaPais</value>
+					</key>
+					<value>
+						SELECT
+						distinct(cotizacion_principal) cotizacion
+						FROM unicabd.preciosmgc ;
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>consultaCotizaFiltro</value>
+					</key>
+					<value>
+						select emisor as empresa,especie as accion,cantidad as cantidad,volumen as volumen, url.url_emisor as url_emisor, 
+ 						precioMaximo as precioMaximo,precioMinimo as precioMinimo,precioMedio as precioMedio, url.url_bolsa as url_bolsa,
+ 						precioUltimo as precioUltimo,precioAnterior as precioAnterior,variacionPuntos as variacion, 
+ 						variacionPorcentual as variacionPorcentual, cotizacion_principal as cotizacion from unicabd.preciosmgc,portalbvc.url_emisor url
+					    :consultaCotizaMGC;
+					</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>

@@ -1,0 +1,313 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean 
+    	id="jdbcDAOMercados" 
+    	class="co.com.bvc.portal.comun.persistencia.jdbc.JDBCDaoImp" 
+    	singleton="false"> 
+        	<property name="dataSource">
+        		<ref bean="dataSourceUnica"/>
+        	</property>
+    </bean>
+	<bean
+		id="accionesDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.AccionesDaoSpringJdbc" 
+		parent="jdbcDAOMercados"
+		singleton="false">
+			<property name="consultas">
+				<ref bean="consultasMercadosAcciones"/>
+			</property>
+	</bean>
+	<bean
+		id="accionesMGCDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.AccionesMGCDaoSpringJdbc" 
+		parent="jdbcDAOMercados"
+		singleton="false">
+			<property name="consultas">
+				<ref bean="consultasMercadosAccionesMGC"/>
+			</property>
+	</bean>
+	<bean
+		id="accionesReposDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.AccionesReposDaoSpringJdbc"
+		parent="jdbcDAOMercados"
+		singleton="false">
+			<property name="consultas">
+				<ref bean="consultasMercadosAcciones"/>
+			</property>
+	</bean>
+	<bean
+		id="accionesMGCReposDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.AccionesMGCReposDaoSpringJdbc"
+		parent="jdbcDAOMercados"
+		singleton="false">
+			<property name="consultas">
+				<ref bean="consultasMercadosAcciones"/>
+			</property>
+	</bean>
+	<bean
+		id="accionesTTVDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.AccionesTTVDaoSpringJdbc"
+		parent="jdbcDAOMercados"
+		singleton="false">
+			<property name="consultas">
+				<ref bean="consultasMercadosAcciones"/>
+			</property>
+	</bean>
+	<bean
+		id="accionesBoceasDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.AccionesBoceasDaoSpringJdbc"
+		parent="jdbcDAOMercados"
+		singleton="false">
+			<property name="consultas">
+				<ref bean="consultasMercadosAcciones"/>
+			</property>
+	</bean>
+	<bean
+		id="accionesMGCTTVDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.AccionesMGCTTVDaoSpringJdbc"
+		parent="jdbcDAOMercados"
+		singleton="false">
+		<property name="consultas">
+			<ref bean="consultasMercadosAcciones"/>
+		</property>
+	</bean>
+	<bean
+		id="indicesDaoProvider" singleton="false"
+		class="co.com.bvc.portal.mercados.persistencia.imp.IndiceDaoSpringJdbc"
+		parent="jdbcDAOBdUnica">
+		<property name="consultas">
+			<ref bean="consultasMercadosIndices"/>
+		</property>
+	</bean>
+	<bean
+		id="rentaFijaDaoProvider" class="co.com.bvc.portal.mercados.persistencia.imp.RentaFijaDaoSpringJdbc"
+		parent="jdbcDAOMercados">
+		<property name="consultas">
+			<ref bean="consultasMercadosRentaFija"/>
+		</property>
+	</bean>
+	<bean
+		singleton="false"
+		id="derivadosDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.DerivadosDaoSpringJdbc"
+		parent="jdbcDAOMercados">
+		<property name="consultas">
+			<ref bean="consultasMercadosDerivados"/>
+		</property>
+	</bean>
+	<bean
+		singleton="false"
+		id="derivadosDrvxDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.DerivadosDrvxDaoSpringJdbc"
+		parent="jdbcDAOMercados">
+		<property name="consultas">
+			<ref bean="consultasMercadosDerivadosDrvx"/>
+		</property>
+	</bean>
+	<bean
+		singleton="false"
+		id="mercadoDaoProvider"
+		class="co.com.bvc.portal.mercados.persistencia.imp.MercadoDaoSpringJdbc">
+		<property name="dataSource" ref="dataSourceUnica" />
+	</bean>
+	<bean
+		singleton="false" 
+		id="divisasDaoSpringJdbcProvider" 
+		class="co.com.bvc.portal.mercados.persistencia.imp.DivisasDaoSpringJdbc"
+		parent="jdbcDAOMercados">
+		<property name="consultas">
+			<ref bean="consultasMercadosDivisas"/>
+		</property>
+	</bean>
+	<bean
+		id="tiposContrato"
+		class="java.util.LinkedHashMap">
+	   	<constructor-arg>
+			<map>
+	           	<entry key="E" value="Futuros Energéticos"/>
+	           	<entry key="F" value="Futuros Financieros"/>
+	           	<entry key="O" value="Opción"/>
+	           	<entry key="OPCF" value="OPCF"/>
+	       	</map>
+	   	</constructor-arg>
+	</bean>
+	
+	<!-- bean que chequea que los parametros que se pasan a los daos que son String no tengan caracteres extraños -->
+    <bean
+    	id="daoCheckParams"
+    	class="co.com.bvc.portal.mercados.util.CheckParamsDaoBeforeAdvice">
+	</bean>
+	<!--beforeCallDaoAdvisor-->
+	<bean
+		id="beforeCallDaoAdvisor"
+		class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="daoCheckParams"/>
+		<property name="pattern" value=".*"/>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean
+		id="accionesDao"
+		class="org.springframework.aop.framework.ProxyFactoryBean"
+		singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IAccionesDao"/>
+		<property name="target" ref="accionesDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean
+		id="accionesMGCDao"
+		class="org.springframework.aop.framework.ProxyFactoryBean"
+		singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IAccionesMGCDao"/>
+		<property name="target" ref="accionesMGCDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean
+		id="accionesReposDao"
+		class="org.springframework.aop.framework.ProxyFactoryBean"
+		singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IAccionesReposDao"/>
+		<property name="target" ref="accionesReposDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="accionesMGCReposDao" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IAccionesMGCReposDao"/>
+		<property name="target" ref="accionesMGCReposDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="accionesTTVDao" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IAccionesTTVDao"/>
+		<property name="target" ref="accionesTTVDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="accionesBoceasDao" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IAccionesBoceasDao"/>
+		<property name="target" ref="accionesBoceasDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="accionesMGCTTVDao" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IAccionesMGCTTVDao"/>
+		<property name="target" ref="accionesMGCTTVDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="indicesDao" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IIndiceDao"/>
+		<property name="target" ref="indicesDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean
+		id="rentaFijaDao"
+		class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IRentaFijaDao"/>
+		<property name="target" ref="rentaFijaDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="derivadosDao" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IDerivadosDao"/>
+		<property name="target" ref="derivadosDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="derivadosDrvxDao" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IDerivadosDao"/>
+		<property name="target" ref="derivadosDrvxDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="mercadoDao" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IMercadoDao"/>
+		<property name="target" ref="mercadoDaoProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- Bean de servicio marcado para la ejecucion del advisor -->
+	<bean id="divisasDaoSpringJdbc" class="org.springframework.aop.framework.ProxyFactoryBean" singleton="false">
+		<property name="proxyInterfaces" 
+			value="co.com.bvc.portal.mercados.persistencia.IDivisasDao"/>
+		<property name="target" ref="divisasDaoSpringJdbcProvider"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeCallDaoAdvisor</value>
+			</list>
+		</property>
+	</bean>
+</beans>

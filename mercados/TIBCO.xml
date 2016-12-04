@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DeploymentDescriptors xmlns="http://www.tibco.com/xmlns/dd">
+    <name>mercados.war</name>
+    <version>5</version>
+    <owner>Administrator</owner>
+    <creationDate>10/30/03 6:21 PM</creationDate>
+    <DeploymentDescriptorFactory>
+        <name>{http://www.tibco.com/xmlns/dd}StartAsOneOf</name>
+        <deploymentDescriptorFactoryClassName>com.tibco.archive.helpers.StartAsOneOf</deploymentDescriptorFactoryClassName>
+    </DeploymentDescriptorFactory>
+    <StartAsOneOf>
+        <name>StartAsOneOf</name>
+        <ComponentSoftwareReference>
+            <minimumComponentSoftwareVersion>0.0.0.0</minimumComponentSoftwareVersion>
+            <minimumTRAVersion>5.3.0.0</minimumTRAVersion>
+            <keyword>ServletEngine</keyword>
+        </ComponentSoftwareReference>
+    </StartAsOneOf>
+    <DeploymentDescriptorFactory>
+        <name>{http://www.tibco.com/xmlns/dd}RequiredComponents</name>
+        <deploymentDescriptorFactoryClassName>com.tibco.archive.helpers.RequiredComponents</deploymentDescriptorFactoryClassName>
+    </DeploymentDescriptorFactory>
+    <RequiredComponents>
+        <name>RequiredComponents</name>
+        <ComponentSoftwareReference>
+            <componentSoftwareName>Portlet Application Service Software</componentSoftwareName>
+            <minimumComponentSoftwareVersion>5.2.0.0</minimumComponentSoftwareVersion>
+            <minimumTRAVersion>5.3.0.0</minimumTRAVersion>
+            <configVersion>5.2.0.0</configVersion>
+        </ComponentSoftwareReference>
+    </RequiredComponents>
+    <DeploymentDescriptorFactory>
+        <name>{http://www.tibco.com/xmlns/dd}DiffExcludeFilter</name>
+        <deploymentDescriptorFactoryClassName>com.tibco.archive.helpers.DiffExcludeFilter</deploymentDescriptorFactoryClassName>
+    </DeploymentDescriptorFactory>
+    <DiffExcludeFilter>
+        <name>DiffExcludeFilter</name>
+        <pathName>WEB-INF/server_service_bindings.xml</pathName>
+        <pathName>WEB-INF/client_service_bindings.xml</pathName>
+    </DiffExcludeFilter>
+    <DeploymentDescriptorFactory>
+        <name>{http://www.tibco.com/xmlns/dd}NameValuePairs</name>
+        <deploymentDescriptorFactoryClassName>com.tibco.archive.helpers.NameValuePairs</deploymentDescriptorFactoryClassName>
+    </DeploymentDescriptorFactory>
+    <NameValuePairs>
+        <name>Portlet Application Service Variables</name>
+        <NameValuePair>
+            <name>Service Name</name>
+            <value>mercados Service</value>
+            <description>Web application name for Portlet Application Service</description>
+            <requiresConfiguration>true</requiresConfiguration>
+        </NameValuePair>
+        <NameValuePair>
+            <name>Portlet Application Name</name>
+            <value>mercados</value>
+            <description>Portlet Application Name</description>
+            <requiresConfiguration>true</requiresConfiguration>
+        </NameValuePair>
+        <NameValuePairBoolean>
+            <name>Default Service</name>
+            <value>true</value>
+            <description>If this service is marked as a default service, it will be visible to all other services in the deployment.</description>
+            <requiresConfiguration>true</requiresConfiguration>
+        </NameValuePairBoolean>
+        <NameValuePair>
+            <name>SERVICE_DEPLOY_PLUG_IN</name>
+            <value>com.tibco.tra.tsm.plugin.ps.pas.PASDeployPlugin</value>
+            <description>PAS deploy plug-in class that extends com.tibco.tra.tsm.plugin.ps.PSGenericDeployPlugin</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_CONFIG_DEPLOY_PLUG_IN</name>
+            <value>com.tibco.ps.deployment.runtime.impl.PortalServiceConfigurationDeployImpl</value>
+            <description>PAS deploy plug-in class that deploys PortalServiceConfiguration. It implements com.tibco.ps.deployment.runtime.PortalServiceConfigurationDeploy and optionally extends com.tibco.ps.deployment.runtime.impl.PortalServiceConfigurationDeployImpl</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_CONFIG_UNDEPLOY_PLUG_IN</name>
+            <value>com.tibco.ps.deployment.runtime.impl.PortalServiceConfigurationUndeployImpl</value>
+            <description>PAS undeploy plug-in class that undeploys PortalServiceConfiguration. It implements com.tibco.ps.deployment.runtime.PortalServiceConfigurationUndeploy and optionally extends com.tibco.ps.deployment.runtime.impl.PortalServiceConfigurationUndeployImpl</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_UNDEPLOY_PLUG_IN</name>
+            <value>com.tibco.tra.tsm.plugin.ps.pas.PASUndeployPlugin</value>
+            <description>PAS un-deploy plug-in class that extends com.tibco.tra.tsm.plugin.ps.PSGenericUndeployPlugin</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_CONFIG_KEY</name>
+            <value>MERCADOS</value>
+            <description>This key will be used to bind the PortalServiceConfiguration object at PortalAdmin level NameRegistry</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_LOCAL_SERVLET_NAME</name>
+            <value>pas_local</value>
+            <description>Local servlet name for PAS</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_EXTERNAL_SERVLET_NAME</name>
+            <value>pas_external</value>
+            <description>External servlet name for PAS</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_REMOTE_SERVLET_NAME</name>
+            <value>pas_remote</value>
+            <description>Remote servlet name for PAS</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_REQUEST_METHOD</name>
+            <value>POST</value>
+            <description>Request method for PAS</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_ENTITY_TYPE</name>
+            <value>com.tibco.ps.model.service.portletsvc.PortletApplicationServiceConfig</value>
+            <description>Portlet Application Service config's entity type.</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVICE_INTERFACE</name>
+            <value>com.tibco.ps.model.service.portletsvc.PortletApplicationServiceConfig</value>
+            <description>Portlet Application Service config's interface.</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePair>
+            <name>SERVER_SERVICE_BINDING_KEY_PROVIDER</name>
+            <value>com.tibco.ps.deployment.descriptors.svcbindings.impl.PortletApplicationServiceBindingKeyProvider</value>
+            <description>Portlet Application Service binding key provider..</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePair>
+        <NameValuePairBoolean>
+            <name>SERVICE_REQUIRES_STA</name>
+            <value>false</value>
+            <description>If this service requires STA.</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePairBoolean>
+        <NameValuePairBoolean>
+            <name>IS_PS_SERVICE_ARCHIVE</name>
+            <value>true</value>
+            <description>Indicates if this is a PS service archive or not.</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePairBoolean>
+        <NameValuePairBoolean>
+            <name>SUPPORTS_MULTIPLE_SERVICE_CONTAINER_BINDINGS</name>
+            <value>false</value>
+            <description>Indicates if this service supports multiple service container bindings, which can be bound to multiple instances of servlet engines that are not part of the same cluster.</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePairBoolean>
+        <NameValuePairInteger>
+            <name>SERVER_SERVICE_BINDINGS_REVISION_NUMBER</name>
+            <value>0</value>
+            <description>Revision number of server_service_bindigs.xml</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePairInteger>
+        <NameValuePairInteger>
+            <name>CLIENT_SERVICE_BINDINGS_REVISION_NUMBER</name>
+            <value>0</value>
+            <description>Revision number of client_service_bindigs.xml</description>
+            <requiresConfiguration>false</requiresConfiguration>
+            <disableConfigureAtDeployment>true</disableConfigureAtDeployment>
+        </NameValuePairInteger>
+    </NameValuePairs>
+</DeploymentDescriptors>

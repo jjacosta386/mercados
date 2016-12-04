@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN"
+"http://getahead.org/dwr/dwr20.dtd">
+<dwr>
+	<allow>
+		<!-- Renta fija Ajax bean -->
+		<create creator="spring" javascript="rentaFijaAjax">
+			<param name="beanName" value="rentaFijaAjax" />
+		</create>
+		
+		<!-- Derivados Ajax bean -->
+		<create creator="spring" javascript="derivadosAjax">
+			<param name="beanName" value="derivadosAjax" />
+		</create>
+		
+		<!-- Acciones Ajax bean -->
+		<create creator="spring" javascript="accionesAjax">
+			<param name="beanName" value="accionesAjax" />
+		</create>
+		
+		<!-- Acciones Ajax MGC bean -->
+		<create creator="spring" javascript="accionesMGCAjax">
+			<param name="beanName" value="accionesMGCAjax" />
+		</create>
+		
+		<!-- GraficoServlet servlet -->
+		<create creator="spring" javascript="intradiaAjax">
+			<param name="beanName" value="intradiaAjax" />
+		</create>
+		
+		<!-- Comparaciones servlet -->
+		<create creator="spring" javascript="comparacionesAjax">
+			<param name="beanName" value="comparacionesAjax" />
+		</create>
+		
+		<create javascript="homeAjax" creator="spring">
+			<param name="beanName" value="homeAjax"></param>
+		</create>
+		
+		<!-- Indices Ajax bean -->
+		<create creator="spring" javascript="indicesAjax">
+			<param name="beanName" value="indicesAjax" />
+		</create>
+		
+	</allow>
+</dwr>

@@ -1,0 +1,6 @@
+# Specifies the order in which the schema files should be loaded.
+# Paths beginning with "/" will be treated as an absolte path from
+# the application context. Paths that do not begin with a "/" will
+# be treaded as relative to the current directory.
+CommonTransportDefs.xsd
+PasServiceTypes.xsd

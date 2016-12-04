@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="mensajes_informativos">
+
+    <form name="form" id="form" action="" style="padding:0px; margin:0px; visibility:hidden">
+  <input type="hidden" id="mover" name="mover" value="true" />
+        <input type="hidden" id="dir" name="dir" value="true" />
+        <input type="hidden" id="avanzar" name="avanzar" value="true" />
+     </form>
+<!--contenedor de ticker-->
+<div id="myflash" align="center">
+  Este site necesita el plugin de Flash Player.
+ </div>
+ <script type="text/javascript">
+  // <![CDATA[
+ 
+ 
+   
+        pathactual = "/mercados/ServletTicker?tipoMercado=01";
+         updateTicker(); 
+         var id = setInterval("updateTicker()",1200000);   
+    
+  // ]]>
+ </script>
+    
+<!--cierre del contenedor de ticker-->    
+
+</div>
+
+<div id="contenedor_selector_mercados" class="lista_desplegable">
+  <ul id="selector_mercados">
+    <li>
+      <div id="texto_selector_dinamico" class="lista_desplegable_texto" style="height:auto; width:140px" onmouseover="
+      mostrar_selector('contenido_selector_mercados');
+      "
+      >ACCIONES</div>
+      <ul id="contenido_selector_mercados" style="height:auto">
+        <li onclick="moveflashmap('/mercados/ServletTicker?tipoMercado=01');setText('acciones');
+        ocultar_selector('contenido_selector_mercados');
+        " style="width:140px" 
+        onmouseover="lista_desplegable_hover('ipmer1');"
+        onmouseout="lista_desplegable('ipmer1');"
+        ><p id="ipmer1" style="width:138px; padding:0px; margin:0px;">ACCIONES</p>
+        </li>
+        <li onclick="moveflashmap('/mercados/ServletTicker?tipoMercado=02');setText('renta fija');
+        ocultar_selector('contenido_selector_mercados');
+        " style="width:140px"
+        onmouseover="lista_desplegable_hover('ipmer2');"
+        onmouseout="lista_desplegable('ipmer2');" 
+        ><p id="ipmer2"  style="width:138px; padding:0px; margin:0px;">RENTA FIJA</p>
+        </li>
+        <li onclick="moveflashmap('/mercados/ServletTicker?tipoMercado=03');setText('derivados');
+        ocultar_selector('contenido_selector_mercados');
+        " style="width:140px"
+        onmouseover="lista_desplegable_hover('ipmer3');"
+        onmouseout="lista_desplegable('ipmer3');"
+        ><p id="ipmer3" style="width:138px; padding:0px; margin:0px;">DERIVADOS</p>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+
+
+
+</body>
+</html>

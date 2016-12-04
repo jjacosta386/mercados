@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- [ Start Beans ]-->
+		
+		<!-- The IntradiaCache bean -->
+		<bean  id="intradiaCache" class="co.com.bvc.portal.mercados.vista.cache.impl.IntradiaCache" scope="singleton">
+			<property name="accionesDao" ref="accionesDao" />
+			<property name="indicesDao" ref="indicesDao" />
+			<property name="derivadosDao" ref="derivadosDao" />
+			<property name="rentasFijasDao" ref="rentaFijaDao" />
+			<property name="divisasDao" ref="divisasDaoSpringJdbc"></property>
+			<property name="derivadosDrvxDao" ref="derivadosDrvxDao"></property>
+			<property name="accionesMGCDao" ref="accionesMGCDao"></property>
+		</bean>
+		
+		<bean id="jobIntradiaAcciones" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+			<property name="targetObject" ref="intradiaCache" />
+			<property name="targetMethod" value="updateAccionesIntradia" />
+		</bean>
+		
+		<bean id="jobIntradiaDerivados" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+			<property name="targetObject" ref="intradiaCache" />
+			<property name="targetMethod" value="updateDerivadosIntradia" />
+		</bean>
+		
+		<bean id="jobIntradiaRentaFija" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+			<property name="targetObject" ref="intradiaCache" />
+			<property name="targetMethod" value="updateRentasFijasIntradia" />
+		</bean>
+
+		
+	<!-- [ Start Triggers ]-->
+	
+		<bean id="updateTriggerAcciones" class="org.springframework.scheduling.quartz.CronTriggerBean">
+			<property name="jobDetail" ref="jobIntradiaAcciones" />
+		     <!-- Ejecucion desde las 9:00 AM a 1:00 PM de Lunes a Viernes cada Minuto -->
+			 <!-- Formato "Seconds Minutes Hours Day-of-Month Month Day-of-Week". 
+			      Tenga en cuenta los espacios en blanco entre cada dato. -->
+		    <property name="cronExpression" value="0 0/5 9-12 ? * MON-FRI" />
+		</bean>
+		
+		<bean id="updateTriggerAccionesRemate" class="org.springframework.scheduling.quartz.CronTriggerBean">
+			<property name="jobDetail" ref="jobIntradiaAcciones" />
+		     <!-- Ejecucion desde las 1:00 PM a 1:10 PM de Lunes a Viernes cada Minuto - Controla operaciones de ultimo minuto-->
+			 <!-- Formato "Seconds Minutes Hours Day-of-Month Month Day-of-Week". 
+			      Tenga en cuenta los espacios en blanco entre cada dato. -->
+		    <property name="cronExpression" value="0 1-10 13 ? * MON-FRI" />
+		</bean>
+
+		<bean id="updateTriggerDerivados" class="org.springframework.scheduling.quartz.CronTriggerBean">
+			<property name="jobDetail" ref="jobIntradiaDerivados" />
+		    <!-- Ejecucion desde las 9:00 AM a 1:00 PM de Lunes a Viernes cada Minuto -->
+			<!-- Formato "Seconds Minutes Hours Day-of-Month Month Day-of-Week". 
+			      Tenga en cuenta los espacios en blanco entre cada dato. -->
+		    <property name="cronExpression" value="0 0/5 9-13 ? * MON-FRI" />
+		</bean>
+		
+		<bean id="updateTriggerDerivadosRemate" class="org.springframework.scheduling.quartz.CronTriggerBean">
+			<property name="jobDetail" ref="jobIntradiaDerivados" />
+		    <!-- Ejecucion desde las 2:00 AM a 2:10 PM de Lunes a Viernes cada Minuto - Controla operaciones de ultimo minuto-->
+			<!-- Formato "Seconds Minutes Hours Day-of-Month Month Day-of-Week". 
+			      Tenga en cuenta los espacios en blanco entre cada dato. -->
+		    <property name="cronExpression" value="0 1-10 14 ? * MON-FRI" />
+		</bean>
+
+		<bean id="updateTriggerRentaFija" class="org.springframework.scheduling.quartz.CronTriggerBean">
+			<property name="jobDetail" ref="jobIntradiaRentaFija" />
+		    <!-- Ejecucion desde las 9:00 AM a 1:00 PM de Lunes a Viernes cada Minuto -->
+			<!-- Formato "Seconds Minutes Hours Day-of-Month Month Day-of-Week". 
+			      Tenga en cuenta los espacios en blanco entre cada dato. -->
+		    <property name="cronExpression" value="0 0/5 9-16 ? * MON-FRI" />
+		</bean>
+		
+		<bean id="updateTriggerRentaFijaRemate" class="org.springframework.scheduling.quartz.CronTriggerBean">
+			<property name="jobDetail" ref="jobIntradiaRentaFija" />
+		    <!-- Ejecucion desde las 5:00 PM a 5:10 PM de Lunes a Viernes cada Minuto - Controla operaciones de ultimo minuto-->
+			<!-- Formato "Seconds Minutes Hours Day-of-Month Month Day-of-Week". 
+			      Tenga en cuenta los espacios en blanco entre cada dato. -->
+		    <property name="cronExpression" value="0 1-10 17 ? * MON-FRI" />
+		</bean>
+		
+	<!-- [ Scheduler ] -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">    
+		<property name="triggers">
+	        <list>
+	            <ref bean="updateTriggerAcciones" />
+	            <ref bean="updateTriggerAccionesRemate" />
+	            <ref bean="updateTriggerDerivados" />
+	            <ref bean="updateTriggerDerivadosRemate" />
+	            <ref bean="updateTriggerRentaFija" />
+	            <ref bean="updateTriggerRentaFijaRemate" />
+	        </list>
+	    </property>
+	</bean>
+</beans>

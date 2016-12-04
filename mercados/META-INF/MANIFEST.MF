@@ -1,0 +1,58 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.6.5
+Created-By: 1.5.0_15-b04 (Sun Microsystems Inc.)
+Class-Path: lib/xfire-aegis-1.2.2.jar lib/ant-apache-resolver.jar lib/
+ resolver.jar lib/TIBCOUserAPI.jar lib/TIBCOrt.jar lib/TIBCOps_api_imp
+ l.jar lib/sitemesh.jar lib/log4j.jar lib/serializer.jar lib/freemarke
+ r.jar lib/ant-junit.jar lib/webwork.jar lib/jiveforums.jar lib/DUServ
+ letEngine.jar lib/TIBCOSecurityTomcat.jar lib/ant.jar lib/TIBCOpb_jiv
+ e.jar lib/TIBqd.jar lib/ant-jsch.jar lib/jakarta-oro-2.0.8.jar lib/ja
+ xen.jar lib/ant-commons-net.jar lib/TIBCOAppDeployment.jar lib/tramod
+ ify.jar lib/ant-antlr.jar lib/oscache.jar lib/batik-css.jar lib/forum
+ -services.jar lib/xmltask.jar lib/ant-launcher.jar lib/sun-saaj-api.j
+ ar lib/rife-continuations.jar lib/spring-context.jar lib/XmlSchema.ja
+ r lib/TIBCOtsm.jar lib/ant-starteam.jar lib/jstl.jar lib/ant-nodeps.j
+ ar lib/ant-apache-bsf.jar lib/ant-apache-bcel.jar lib/dwr.jar lib/com
+ mons-digester.jar lib/ant-apache-log4j.jar lib/xfire-spring-1.2.2.jar
+  lib/AppManage.jar lib/wstx-asl-3.0rc1.jar lib/commons-net-1.3.0.jar 
+ lib/struts.jar lib/designerhelp.jar lib/ant-commons-logging.jar lib/P
+ DFBox.jar lib/ant-vaj.jar lib/commons-validator.jar lib/poi.jar lib/s
+ mackx.jar lib/ant-trax.jar lib/javamail.jar lib/tibcryptx_pswd.jar li
+ b/xwork.jar lib/ehcache-1.3.0.jar lib/TIBCOjms.jar lib/commons-httpcl
+ ient.jar lib/jsr173_1.0_api.jar lib/jakarta-oro.jar lib/spring-aop.ja
+ r lib/commons-codec.jar lib/cos.jar lib/stax-api.jar lib/stringprep.j
+ ar lib/commons-cli.jar lib/ant-swing.jar lib/ant-xslp.jar lib/xercesI
+ mpl.jar lib/tangosol-license.jar lib/cpptasks.jar lib/ognl.jar lib/ca
+ talina-ant.jar lib/ant-contrib-0.6.jar lib/jdom.jar lib/ant-apache-re
+ gexp.jar lib/xml-apis.jar lib/DomainUtility.jar lib/TIBCOpsx_api_impl
+ .jar lib/PerlTools.jar lib/TIBCOdesigner.jar lib/commonj.jar lib/comm
+ ons-attributes-api.jar lib/lucene-core.jar lib/commons-net.jar lib/TI
+ BCOpsx_common.jar lib/wss4j.jar lib/TIBCOpb_api.jar lib/javamail_prov
+ iders.jar lib/coherence-work.jar lib/commons-beanutils.jar lib/wsdl4j
+ .jar lib/geoip.jar lib/ant-javamail.jar lib/tangosol.jar lib/xstream.
+ jar lib/neo.jar lib/sun-saaj-impl.jar lib/commons-logging.jar lib/sma
+ ckx-debug.jar lib/qdox.jar lib/TIBCOpb_resources.jar lib/jakarta-rege
+ xp-1.2.jar lib/lucene-highlighter.jar lib/sun-jaxws-api.jar lib/chart
+ .jar lib/auth.jar lib/commons-collections.jar lib/coherence.jar lib/s
+ itemeshprocessor.jar lib/jmxremote_optional.jar lib/xpp3.jar lib/juni
+ t.jar lib/TIBCOps_resources.jar lib/xpp3_xpath.jar lib/ant-jmf.jar li
+ b/xml-apis-ext.jar lib/commons-io.jar lib/TIBCOpb_api_impl.jar lib/an
+ t-xalan1.jar lib/commons-lang.jar lib/commons-fileupload.jar lib/log4
+ jProps.jar lib/xfire-all.jar lib/Deployment.jar lib/xfire-core-1.2.2.
+ jar lib/TIBCOpsx_api.jar lib/hessian.jar lib/smack.jar lib/batik-util
+ .jar lib/ant-jdepend.jar lib/standard.jar lib/jtidy.jar lib/ant-icont
+ ract.jar lib/TIBCOxml.jar lib/ssce.jar lib/smjavaagentapi.jar lib/osc
+ ore.jar lib/xmlsec.jar lib/dom4j.jar lib/antisamy.jar lib/ant-contrib
+ .jar lib/xmlParserAPIs.jar lib/commons-codec-1.3.jar lib/ant-weblogic
+ .jar lib/spring-beans.jar lib/backport_util_concurrent.jar lib/TIBCOP
+ SDDScreensPlugin.jar lib/xalan.jar lib/TIBCOpsx_resources.jar lib/TIB
+ COpb_common.jar lib/jive_ext.jar lib/slf4j-jdk14.jar lib/TIBCOps_api.
+ jar lib/ant-apache-oro.jar lib/muitools.jar lib/proxool-0.9.0RC3.jar 
+ lib/hsqldb.jar lib/spring-web.jar lib/spring-core.jar lib/XSLTPluginF
+ actory.jar lib/PngEncoder.jar lib/ant-netrexx.jar lib/antivirus.jar l
+ ib/ant-stylebook.jar lib/stax-utils.jar lib/jakarta-slide-webdavlib-2
+ .0.jar lib/commons-pool.jar lib/nekohtml.jar lib/portlet.jar lib/xbea
+ n.jar lib/ant-jai.jar lib/TIBCOps_common.jar lib/turbosdk.jar lib/wst
+ x-asl.jar lib/jax-1_1-fr-qname-class.jar lib/xerces.jar lib/ldapjdk.j
+ ar lib/turbine-2.1.jar classes .
+

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN" "http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+
+<!--
+// (c) Copyright 2003, TIBCO Software Inc.  All rights reserved.
+// LEGAL NOTICE:  This source code is provided to specific authorized end
+// users pursuant to a separate license agreement.  You MAY NOT use this
+// source code if you do not have a separate license from TIBCO Software
+// Inc.  Except as expressly set forth in such license agreement, this
+// source code, or any portion thereof, may not be used, modified,
+// reproduced, transmitted, or distributed in any form or by any means,
+// electronic or mechanical, without written permission from  TIBCO
+// Software Inc.
+-->
+<taglib>
+    <tlibversion>1.0</tlibversion>
+    <jspversion>1.1</jspversion>
+    <shortname>TibcoJSP</shortname>
+    <tag>
+        <name>variable</name>
+        <tagclass>com.tibco.pof.template.jsp.VariableTag</tagclass>
+        <attribute>
+        	<name>name</name>
+                <required>true</required>
+    	</attribute>
+        <attribute>
+        	<name>iterator</name>
+                <required>false</required>
+    	</attribute>
+	<attribute>
+        	<name>type</name>
+                <required>false</required>
+    	</attribute>
+        <attribute>
+        	<name>argument</name>
+                <required>false</required>
+    	</attribute>
+        <attribute>
+        	<name>escape</name>
+                <required>false</required>
+    	</attribute>
+        <attribute>
+        	<name>length</name>
+                <required>false</required>
+    	</attribute>
+        <attribute>
+        	<name>default</name>
+                <required>false</required>
+    	</attribute>
+        <attribute>
+        	<name>format</name>
+                <required>false</required>
+    	</attribute>
+    </tag>
+    <tag>
+        <name>iterator</name>
+        <tagclass>com.tibco.pof.template.jsp.IteratorTag</tagclass>
+        <bodycontent>JSP</bodycontent>
+        <attribute>
+        	<name>name</name>
+                <required>true</required>
+    	</attribute>
+    </tag>
+    </taglib>

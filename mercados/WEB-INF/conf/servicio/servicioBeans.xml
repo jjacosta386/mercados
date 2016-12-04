@@ -1,0 +1,89 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans> 
+	<bean id="servicioMercadosUtil" singleton="false"
+		class="co.com.bvc.portal.mercados.servicio.imp.ServicioMercadosUtil"
+		autowire="byName"></bean>
+	<bean id="derivados" class="co.com.bvc.portal.mercados.servicio.imp.Derivados" singleton="false"
+		autowire="byName" />
+		
+	<bean id="derivadosDrvx" class="co.com.bvc.portal.mercados.servicio.imp.DerivadosDrvx" singleton="false" 
+	autowire="byName" >
+	<property name="derivadosDao" ref="derivadosDrvxDao"/>
+		
+	</bean>
+	
+	<bean id="rentafija" class="co.com.bvc.portal.mercados.servicio.imp.RentaFija" singleton="false"
+		autowire="byName" />
+		
+	<bean singleton="false" id="rentaFijaAjax" class="co.com.bvc.portal.mercados.servicio.ajax.imp.RentaFijaAjax" autowire="byName" />
+	
+	<bean singleton="false" id="indicesAjax" class="co.com.bvc.portal.mercados.servicio.ajax.imp.IndicesAjax" autowire="byName" />
+	
+	<bean singleton="false" id="intradiaAjax" class="co.com.bvc.portal.mercados.servicio.ajax.imp.IntradiaAjax" autowire="byName" />
+	
+	<bean singleton="false" id="derivadosAjax" class="co.com.bvc.portal.mercados.servicio.ajax.imp.DerivadosAjax" autowire="byName" />
+	
+	<bean singleton="false" id="accionesAjax" class="co.com.bvc.portal.mercados.servicio.ajax.imp.AccionesAjax" autowire="byName" />
+	
+	<bean singleton="false" id="accionesMGCAjax" class="co.com.bvc.portal.mercados.servicio.ajax.imp.AccionesMGCAjax" autowire="byName" />
+	
+	<bean singleton="false" id="comparacionesAjax" class="co.com.bvc.portal.mercados.servicio.ajax.imp.ComparacionesAjax" autowire="byName" />
+	
+	<bean singleton="false" id="indices" class="co.com.bvc.portal.mercados.servicio.imp.Indices"
+		autowire="byName">
+		<property name="fechaInicioIndicesRecientes">
+			<value>20080115</value>
+		</property>
+		<property name="indicesRecientes">
+			<list>
+				<value>ICAP</value>
+				<value>IC20</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="accionesServicio" class="co.com.bvc.portal.mercados.servicio.imp.AccionServicio" singleton="false"
+		autowire="byName"></bean>
+	<bean id="accionesMGCServicio" class="co.com.bvc.portal.mercados.servicio.imp.AccionMGCServicio" singleton="false">
+		<property name="accionesMGCDao" ref="accionesMGCDao" />
+		<property name="accionesMGCReposDao" ref="accionesMGCReposDao" />
+		<property name="accionesMGCTTVDao" ref="accionesMGCTTVDao" />
+		<property name="servicioUtil" ref="servicioUtil" />
+	</bean>
+	<bean id="servicioTransformarXls"
+		class="co.com.bvc.portal.mercados.servicio.imp.ServicioTransformarXls" singleton="false"
+		parent="servicioXls">
+		<property name="descripcionObjetos" ref="propiedadesObjetos" />
+	</bean>
+	
+	<bean id="divisasRegistro" class="co.com.bvc.portal.mercados.servicio.imp.DivisasRegistro" singleton="false"
+		autowire="byName"></bean>
+	<bean singleton="false" id="divisasSetFx" class="co.com.bvc.portal.mercados.servicio.imp.DivisasSetFx" autowire="byName"></bean>
+	<bean singleton="false" id="servicioUtil" class="co.com.bvc.portal.comun.servicio.imp.ServicioUtil"
+		autowire="byName"></bean>
+		
+	<!-- XMLGenerator -->
+	<bean id="XMLGenerator" class="co.com.bvc.portal.mercados.servicio.imp.XMLGenerator" autowire="byName"></bean>
+			
+	<!-- XML creator trigger  -->
+	<bean id="jobDetailTicker"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="XMLGenerator" />
+		<property name="targetMethod" value="construirXML" />
+	</bean>
+
+	<bean id="xmlCreatorTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean"> 
+	    <!-- see the example of method invoking job above -->
+	    <property name="jobDetail" ref="jobDetailTicker" />
+	    <property name="repeatInterval" value="60000" />
+	</bean>
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	    <property name="triggers">
+	        <list>
+	            <ref bean="xmlCreatorTrigger" />
+	        </list>
+	    </property>
+	</bean>
+	
+</beans>

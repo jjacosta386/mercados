@@ -1,0 +1,126 @@
+<html>
+<head>
+	<script type='text/javascript' src='/mercados/js/tab/tabber.js'></script>
+	<link rel="stylesheet" href="/mercados/css/tabs/example.css" TYPE="text/css" MEDIA="screen">
+	<link type="text/css" rel="stylesheet" href="%%SiteContent.Portlet('common.bvc.recursos')%%/css/estilos_home_accionistas.css">
+	<script type="text/javascript" src="%%SiteContent.Portlet('common.bvc.recursos')%%/calendar/js/calendar.js"></script>
+	<script type="text/javascript" src="%%SiteContent.Portlet('common.bvc.recursos')%%/calendar/js/calendar-setup.js"></script>
+	<script type="text/javascript" src="%%SiteContent.Portlet('common.bvc.recursos')%%/calendar/js/calendar-es.js"></script>
+	<link rel='stylesheet' type='text/css' media='all'  href="%%SiteContent.Portlet('common.bvc.recursos')%%/calendar/css/skins/aqua/theme.css" title='Aqua' />
+	<link rel='stylesheet' type='text/css' media='all'  href="%%SiteContent.Portlet('common.bvc.recursos')%%/calendar/css/calendar-win2k-2.css"/>
+	
+	<script type="text/javascript">
+		function pintarCal(id, format){
+			var a = document.getElementById(id);
+			var p = Calendar.getAbsolutePos(a);
+			var X = p.x;
+			var Y = p.y;
+			Calendar.setup({
+					inputField     :    id,
+					singleClick    :    false,
+					ifFormat       :    format,
+					position       :    [X,Y] 
+			});
+		}
+	</script>
+</head>
+<body>
+
+
+
+
+<div class="titulo_grafica_accionistas">
+    <div id="texto_21" class="resumen_mercado_titulo_azul_titulo">
+           ACCIÓN BVC
+     </div>
+</div>
+
+<div class="grafica_detalle_bvc_accionistas">
+	<table width="100%" cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td>
+					<div class="tabber" title="Gráfica">
+						<div class="tabbertab" title="Diaria">
+							<div id="grafico_dia">
+							 <script>
+								   var bvcGraficoDia = new SWFObject ("%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf","amstock", "100%", "370", "8", "#FFFFFF");
+								   bvcGraficoDia.addVariable("path", "");
+								 bvcGraficoDia.addParam("wmode","opaque");
+								 bvcGraficoDia.addVariable("settings_file",escape("/mercados/GraficosServlet?conf=BVC&url=/amstock/settings/acciones_hoy_stock_settings.xml&tipoG=ACCION&tiempo=hoy"));
+								 bvcGraficoDia.addVariable("chart_id", "amstockDia");
+								 bvcGraficoDia.addVariable("preloader_color", "#999999");
+								 licenciaGrafica(bvcGraficoDia);
+								 bvcGraficoDia.write('grafico_dia');
+							   </script>
+							</div>
+						</div>
+						<div class="tabbertab" title="Histórica">
+							<div id="grafico_hist">
+							 <script>
+								   var bvcGraficoHist = new SWFObject ("%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf","amstock", "100%", "370", "8", "#FFFFFF");
+								   bvcGraficoHist.addVariable("path", "");
+								 bvcGraficoHist.addParam("wmode","opaque");
+								 bvcGraficoHist.addVariable("settings_file",escape("/mercados/GraficosServlet?conf=BVC&url=/amstock/settings/acciones_stock_settings.xml&tipoG=ACCION&tiempo=ayer"));
+								 bvcGraficoHist.addVariable("chart_id", "amstockHist");
+								 bvcGraficoHist.addVariable("preloader_color", "#999999");
+								 licenciaGrafica(bvcGraficoHist);
+								 bvcGraficoHist.write('grafico_hist');
+							   </script>
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<form id="formhistorico" action="/mercados/DescargaXlsServlet"
+		method="get" name="formhistorico">
+		<input type="hidden" name="archivo" value="acciones_detalle" /> 
+		<input type="hidden" name="nemo" value="BVC" /> 
+		<input type="hidden" name="tipoMercado" value="1" />
+		<table width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: rgb(79, 140, 195);">
+			<tbody>
+				<tr>
+					<td class="detalles_accionista_td10" valign="middle" style="padding: 3px">
+						Descargar Hist&oacute;rico
+					</td>
+					<td class="detalles_accionista_td10" valign="middle" style="padding: 3px">
+						Desde:
+					</td>
+					<td valign="middle" style="padding: 3px">
+						<input type="text" name="fechaIni" style="width: 70px" readonly="readonly"
+							id="fechaIni" onClick="return pintarCal('fechaIni', '%Y-%m-%d');"/>
+					</td>
+					<td class="detalles_accionista_td10" valign="middle" style="padding: 3px">
+						<img width="15" height="21" border="0" alt="cal"
+							src="%%SiteContent.Portlet('common.bvc.recursos')%%/calendar/images/calendario.gif"
+							onClick="simularDesde('fechaIni', 1);" onMouseOver="simularDesde('fechaIni', 0);"
+							style="cursor: pointer;" />
+					</td>
+					<td class="detalles_accionista_td10" valign="middle" style="padding: 3px">
+						Hasta:
+					</td>
+					<td valign="middle" style="padding: 3px">
+						 <input type="text" name="fechaFin" style="width: 70px" readonly="readonly" id="fechaFin"
+								onClick="return pintarCal('fechaFin', '%Y-%m-%d');"/>
+					</td>
+					<td class="detalles_accionista_td10" valign="middle" style="padding: 3px">
+						<img width="15" height="21" border="0" alt="cal"
+							src="%%SiteContent.Portlet('common.bvc.recursos')%%/calendar/images/calendario.gif"
+							onClick="simularHasta('fechaFin', 1);" onMouseOver="simularHasta('fechaFin', 0);"
+							style="cursor: pointer;" />
+					</td>
+					<td class="detalles_accionista_td10" valign="middle" style="padding: 3px">
+						<a href="#" onClick="validarFormFechas('fechaIni', 'fechaFin', 'yyyy-MM-dd', 'formhistorico', true);">Descargar</a>
+						<img alt="Archivo de EXCEL" src="%%SiteContent.Portlet('common.bvc.recursos')%%/images/excel_detalles.gif"/>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</div>
+
+
+</body>
+</html>

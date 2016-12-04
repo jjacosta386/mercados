@@ -1,0 +1,7 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<bean id="homeAjax" singleton="false" class="co.com.bvc.portal.mercados.vista.portlet.ajax.imp.HomeAjax" autowire="byName">
+	</bean>
+
+</beans>

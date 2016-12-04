@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="all" name="Seed config file for Portlet Application Service">
+    <target depends="sync_portlet_app, app_domain_config" name="all"/>
+    <target description="Synchronize portlet.xml to PortletApp" name="sync_portlet_app">
+        <synchronizePortletApp portletAppName="${PORTLET_APP_NAME}" warPath="${EXPANDED_WAR_DIR}"/>
+    </target>
+    <target description="Configures administration domain objects for PAS" name="admin_domain_config">
+        <createPortalApp createInDefaultAppDomain="true"/>
+        <createPortalAdmin>
+            <createPortletApplicationServiceConfig name="${PAS_NAME}" portletAppName="${PORTLET_APP_NAME}" serviceConfigKey="${SERVICE_CONFIG_KEY}">
+                <createRequestDispatcherServiceTransportConfig contextPath="${PAS_CONTEXT_PATH}" dispatchPath="${PAS_DISPATCH_PATH}"/>
+                <createExternalRequestDispatcherServiceTransportConfig contextPath="${PAS_CONTEXT_PATH}" dispatchPath="${PAS_DISPATCH_PATH}"/>
+                <createThreadPoolConfig maxThreadCount="${THREAD_POOL_CONFIG.MAX_THREAD_COUNT}" minThreadCount="${THREAD_POOL_CONFIG.MIN_THREAD_COUNT}" name="Thread Pool Configuration" threadExpiryInterval="${THREAD_POOL_CONFIG.THREAD_EXPIRY_INTERVAL}"/>
+                <createLoggingConfig disabledRoles="com.tibco.sdk.tools.MTrace.DEBUG,portletTraceRole1,portletTraceRole2,portletTraceRole3,portletDebugRole,portletRole,traceRole,transportDebugRole,transportVerboseRole" enabledRoles="com.tibco.sdk.tools.MTrace.ERROR,com.tibco.sdk.tools.MTrace.INFO,com.tibco.sdk.tools.MTrace.WARN"/>
+                <createInstrumentConfig disabledInstruments="INTERVAL_RQ_TIME,COUNTER_RQ_QSIZE,INTERVAL_STORE_RD_TIME,INTERVAL_STORE_WR_TIME,INTERVAL_STORE_ACL_TIME,COUNTER_RUNNING_THREADS,COUNTER_QUEUE_SIZE,INTERVAL_PSPAS_PORTLET_RENDER,INTERVAL_PSPAS_PORTLET_PROCESS_ACTION,INTERVAL_PSPAS_PORTLET_RENDER_ERROR,INTERVAL_PSPAS_PORTLET_PROCESS_ACTION_ERROR" enabledInstruments=""/>
+                <createHttpSoapServiceTransportConfig>
+                    <createHttpSoapConnectionConfig secureURL="${PAS_SECURE_URL}" sourceRequestMethod="POST" sourceURL="${PAS_SOURCE_URL}"/>
+                </createHttpSoapServiceTransportConfig>
+            </createPortletApplicationServiceConfig>
+        </createPortalAdmin>
+    </target>
+    <target description="Undeploys administration domain objects for PAS" name="admin_domain_undeploy">
+        <undeployPortalServiceConfig entityType="com.tibco.ps.model.service.portletsvc.PortletApplicationServiceConfig" name="${PAS_NAME}"/>
+    </target>
+    <target name="app_domain_config"/>
+    <target name="app_domain_undeploy"/>
+</project>

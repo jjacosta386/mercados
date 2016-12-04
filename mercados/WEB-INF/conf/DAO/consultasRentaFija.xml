@@ -1,0 +1,359 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="consultasMercadosRentaFija" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>rentafijaOperaciones</value>
+					</key>
+					<value>
+						SELECT v_rftr:a_HOR_GRA                                                         AS horGra           ,
+						       v_rfmi_emisor                                                            AS emisor           ,
+						       v_tit_codigo                                                             AS tituloCodigo     ,
+						       v_tit_nombre                                                             AS tituloNombre     ,
+						       v_rftr:a_NEMO                                                            AS nemo             ,
+						       v_rftr:a_PRECIO                                                          AS precioSucio      ,
+						       v_rftr:a_MONTO                                                           AS volumen          ,
+						       v_rftr:a_CANTIDAD                                                        AS cantidad         ,
+						       v_rftr:a_RUSIOPEL                                                        AS sesionNegociacion,
+						       IF(cod_sector = 'PRI','PRIVADO', IF(cod_sector = 'PU','PUBLICO','OTRO')) AS tipoDeuda        ,
+						       tipo_operacion                                                           AS tipoOperacion,
+	   						   tipo_titulo																AS mercado
+						FROM   unicabd.tbrftr:ah
+						WHERE  v_rftr:a_RUSIOPEL LIKE ':rueda'
+						   AND v_rftr:a_RUSIOPEL not in( "BOCE", "SIBO")
+						   AND tipo_titulo LIKE ':tipoMercado'
+						   AND tipo_operacion LIKE ':tipoOperacion'
+						   AND v_rftr:a_hor_gra >= ':fechaIni'
+						   AND v_rftr:a_hor_gra  &lt; ':fechaFin'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>queryEmisor</value>
+					</key>
+					<value>select cuar.V_EMI_RAZON_SOCIAL as RazonSocial,
+						cuar.V_EMI_EMISOR as Sigla, cuar.V_EMI_NIT as Nit,
+						cuar.V_EMI_SECTOR as Sector, cuar.V_EMI_REPRESENTANTE as
+						Presidente, cuar.V_EMI_DIRECCION as Direccion, cuar.V_EMI_CIUDAD
+						as Ciudad, cuar.V_EMI_SITUACION as Situacion, cuar.V_EMI_TELEFONO
+						as Telefono, cuar.V_EMI_FAX as Fax from tbdemi seg, tbrfmi ter,
+						tbutemis cuar where seg.V_DEMI_NEMO = ':nemo' and
+						seg.V_DEMI_NEMO_RFMI = ter.V_RFMI_NEMO and ter.V_RFMI_EMISOR =
+						cuar.V_EMI_EMISOR UNION ALL select ter.V_EMI_RAZON_SOCIAL as
+						RazonSocial, ter.V_EMI_EMISOR as Sigla, ter.V_EMI_NIT as Nit,
+						ter.V_EMI_SECTOR as Sector, ter.V_EMI_REPRESENTANTE as Presidente,
+						ter.V_EMI_DIRECCION as Direccion, ter.V_EMI_CIUDAD as Ciudad,
+						ter.V_EMI_SITUACION as Situacion, ter.V_EMI_TELEFONO as Telefono,
+						ter.V_EMI_FAX as Fax from tbrfmi seg, tbutemis ter where
+						seg.V_RFMI_NEMO = ':nemo' and seg.V_RFMI_EMISOR = ter.V_EMI_EMISOR
+						limit 1 </value>
+				</entry>
+				<entry>
+					<key>
+						<value>queryTitulo</value>
+					</key>
+					<value>select prim.V_DEMI_NEMO as Nemo,
+						prim.V_DEMI_CODIGO_SUPER as CodigoSuper, seg.V_RFMI_TITULO as
+						TipoTitulo, prim.V_DEMI_COD_ISIN_1 as Isin1,
+						prim.V_DEMI_COD_ISIN_2 as Isin2, prim.V_DEMI_COD_ISIN_3 as Isin3,
+						seg.V_RFMI_EMISOR as Emisor, prim.V_DEMI_FECHA_EMISION as
+						FechaEmision, prim.V_DEMI_FECHA_VCTO as FechaVencimiento,
+						prim.V_DEMI_ESTADO as Estado, prim.V_DEMI_MONEDA as Moneda,
+						prim.V_DEMI_TASA_REFERENCIA as TasaReferencia, prim.V_DEMI_TASA as
+						TasaCupon, prim.V_DEMI_MODALIDAD as ModalidadPago from tbdemi
+						prim, tbrfmi seg where prim.V_DEMI_NEMO_RFMI = seg.V_RFMI_NEMO and
+						prim.V_DEMI_NEMO = ':nemo' UNION ALL select prim.V_RFMI_NEMO as
+						Nemo, prim.V_RFMI_CODIGO_SUPER as CodigoSuper, prim.V_RFMI_TITULO
+						as TipoTitulo, prim.V_RFMI_COD_ISIN_1 as Isin1,
+						prim.V_RFMI_COD_ISIN_2 as Isin2, prim.V_RFMI_COD_ISIN_3 as Isin3,
+						prim.V_RFMI_EMISOR as Emisor, prim.V_RFMI_FECHA_EMISION as
+						FechaEmision, prim.V_RFMI_FECHA_VCTO as FechaVencimiento,
+						prim.V_RFMI_ESTADO as Estado, prim.V_RFMI_MONEDA as Moneda,
+						prim.V_RFMI_TASA_REFERENCIA as TasaReferencia, prim.V_RFMI_TASA as
+						TasaCupon, prim.V_RFMI_MODALIDAD as ModalidadPago from tbrfmi prim
+						where prim.V_RFMI_NEMO = ':nemo' </value>
+				</entry>
+				<entry>
+					<key>
+						<value>tickerRentaFija</value>
+					</key>
+					<value>
+						SELECT nemos.nemo  nemo,
+						       precios.precio ultimoPrecioTasa,
+						       precios.hora horaUltimaMarcacion
+						FROM (
+						       (SELECT  v_rftr_nemo nemo,
+						                SUM(v_rftr_monto) monto
+						       FROM     tbrftrh
+						       WHERE    v_rftr_hor_gra &lt; ':fechaFin'
+						       AND v_rftr_RUSIOPEL not in( "BOCE", "SIBO")
+						       GROUP BY v_rftr_nemo
+						       ORDER BY monto DESC limit 20
+						       )
+						
+						UNION
+						      
+						      DISTINCT
+						               (SELECT NOMBRE_TIT nemo,
+						               
+						               
+						                       0 monto
+						               FROM    portalbvc.titulo_valor
+						               WHERE   ticker = 1
+						               )) nemos
+						       INNER JOIN
+						             (SELECT  rfi.v_rftr_nemo nemo,
+						                      IF ((rfi.v_rfmi_caja IN (1,4,5)), rfi.V_RFTR_TASA, IF (rfi.v_rfmi_caja IN (2,3), rfi.V_RFTR_PRECIO, NULL)) precio,
+						                      rfi.v_rftr_hor_gra hora
+						             FROM     tbrftrh rfi
+						                      INNER JOIN
+						                               (SELECT  i.v_rftr_nemo nemo,
+						                                        MAX(i.v_rftr_hor_gra) fecha
+						                               FROM     tbrftrh i
+						                               WHERE    i.v_rftr_hor_gra        &lt; ':fechaFin'
+						                                    AND i.tipo_operacion = 'CV'
+						                                    AND i.tipo_titulo    = 'T'
+						                                    AND i.v_rftr_compla    = 'C'
+						                               GROUP BY i.v_rftr_nemo
+						                               ) fechas
+						             ON       rfi.v_rftr_nemo     = fechas.nemo
+						                  AND fechas.fecha = rfi.v_rftr_hor_gra
+						             GROUP BY rfi.v_rftr_nemo
+						             ) precios
+						ON     precios.nemo = nemos.nemo
+     				</value>
+				</entry>
+				<entry>
+					<key>
+						<value>queryAutocomplete</value>
+					</key>
+					<value>select
+							*
+							from
+							((select prim.V_DEMI_NEMO as Nemo
+							from tbdemi prim, tbrfmi seg
+							where prim.V_DEMI_NEMO_RFMI = seg.V_RFMI_NEMO
+							and seg.V_RFMI_TITULO not in("BOC"))
+							
+							UNION ALL
+							
+							(select prim.V_RFMI_NEMO as Nemo
+							from tbrfmi prim
+							where prim.V_RFMI_TITULO not in("BOC"))) c
+							order by 1;
+     				</value>
+				</entry>
+				<entry>
+					<key>
+						<value>graficaRentaFija</value>
+					</key>
+					<value>
+						SELECT SUBSTR(v_rftr:a_hor_gra,1,16) fechaString,
+								IF ((v_rfmi_caja is null OR v_rfmi_caja IN (1,4,5)), 
+									V_RFTR:a_TASA, 
+									IF (v_rfmi_caja IN (2,3), 
+										V_RFTR:a_PRECIO, 
+										NULL)) valorCierre,
+								v_rftr:a_monto volumen
+						FROM unicabd.tbrftr:ah
+						WHERE v_rftr:a_hor_gra &lt; ':fechaFin'
+							AND tipo_operacion = 'CV'
+						    AND tipo_titulo    = 'T'
+						    AND v_rftr:a_compla    = 'C'
+							AND v_rftr:a_nemo = ':nemo'
+							
+						GROUP BY LEFT(v_rftr:a_hor_gra, 16)
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>graficaRentaFijaHist</value>
+					</key>
+					<value>
+						SELECT SUBSTR(v_rftra_hor_gra,1,16) fechaString,
+						         IF ((v_rfmi_caja IS NULL
+								      OR v_rfmi_caja IN (1,4,5)), 
+								        	V_RFTRa_TASA, 
+								        	IF (v_rfmi_caja IN (2,3), 
+								        		V_RFTRa_PRECIO, 
+								        		NULL)) valorCierre,
+						         v_rftra_monto volumen
+						FROM     unicabd.tbrftrah
+						         INNER JOIN
+						                  (SELECT  MAX(v_rftra_hor_gra) fecha,
+													v_rftra_nemo nemo
+						                  FROM     unicabd.tbrftrah
+						                  WHERE    v_rftra_hor_gra &lt; ':fechaFin'
+						                       AND tipo_operacion  = 'CV'
+						                       AND tipo_titulo     = 'T'
+						                       AND v_rftra_compla  = 'C'
+						                       AND v_rftra_nemo    = ':nemo'
+						                       
+						                  GROUP BY LEFT(v_rftra_hor_gra, 10)
+						                  ) fechas 
+						         ON     fecha = v_rftra_hor_gra AND nemo = v_rftra_nemo
+						GROUP BY LEFT(v_rftra_hor_gra, 10)
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>cargarUltimaTasaRentafija</value>
+					</key>
+					<value> 
+						select o.v_rftra_nemo,
+							IF ((o.v_rfmi_caja is null OR o.v_rfmi_caja IN (1,4,5)), 
+									o.V_RFTRa_TASA, 
+									IF (o.v_rfmi_caja IN (2,3), 
+										o.V_RFTRa_PRECIO, 
+										NULL)) valorCierre
+						from unicabd.tbrftrah o
+						where o.v_rftra_hor_gra = (select max(i.v_rftra_hor_gra)
+													from unicabd.tbrftrah i
+													where i.v_rftra_nemo = ':nemo'
+														AND tipo_operacion = 'CV'
+														AND tipo_titulo    = 'T'
+														AND v_rftra_compla    = 'C')
+							 and o.v_rftra_nemo = ':nemo'
+							 AND v_rftra_RUSIOPEL not in( "BOCE", "SIBO")
+						limit 1
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>detalleNemoGeneral</value>
+					</key>
+					<value>
+						SELECT v_rftr:a_HOR_GRA                                                         AS fechaOperacionS   ,
+						       v_rftr:a_PRECIO                                                          AS precioSucio      ,
+						       v_rftr:a_MONTO                                                           AS volumen          ,
+						       v_rftr:a_CANTIDAD                                                        AS cantidad         ,
+						       v_rftr:a_RUSIOPEL                                                        AS sesionNegociacion,
+						       tipo_operacion                                                           AS tipoOperacion    ,
+							   v_rftr:a_tasa															AS tasa				,
+							   v_rftr:a_compla															AS tipoPlazo		,
+							   v_rftr:a_mercado															AS mercado			,
+							   v_rftr:a_fec_emision														AS fechaEmisionS		,
+							   v_rfmi_tasa																AS tasaCupon		,
+							   v_rfmi_modalidad															AS modalidadPago	,
+							   V_rftr:a_fec_vcto														AS fechaVencimientoS
+						FROM   unicabd.tbrftr:ah
+						WHERE  v_rftr:a_RUSIOPEL LIKE ':rueda'
+						   AND v_rftr:a_RUSIOPEL not in( "BOCE", "SIBO")
+						   AND tipo_titulo LIKE ':tipoMercado'
+						   AND tipo_operacion LIKE ':tipoOperacion'
+						   AND v_rftr:a_hor_gra >= ':fechaIni'
+						   AND v_rftr:a_hor_gra  &lt; ':fechaFin'
+						   AND v_rftr:a_nemo = ':nemo'
+						ORDER BY FechaOperacionS 
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>detalleNemoRepos</value>
+					</key>
+					<value>
+						SELECT v_rftr:a_HOR_GRA                                                         AS FechaOperacionS   ,
+						       v_rftr:a_PRECIO                                                          AS precioSucio      ,
+						       v_rftr:a_MONTO                                                           AS volumen          ,
+						       v_rftr:a_CANTIDAD                                                        AS cantidad         ,
+						       v_rftr:a_RUSIOPEL                                                        AS sesionNegociacion,
+						       tipo_operacion                                                           AS tipoOperacion    ,
+							   v_rftr:a_tasarepo														AS tasa				,
+							   v_rftr:a_compla															AS tipoPlazo		,
+							   v_rftr:a_mercado															AS mercado			,
+							   v_rftr:a_fec_emision														AS fechaEmisionS		,
+							   v_rfmi_tasa																AS tasaCupon		,
+							   v_rfmi_modalidad															AS modalidadPago	,
+							   V_rftr:a_fec_vcto														AS fechaVencimientoS
+						FROM   unicabd.tbrftr:ah
+						WHERE  v_rftr:a_RUSIOPEL LIKE ':rueda'
+						   AND v_rftr:a_RUSIOPEL not in( "BOCE", "SIBO")
+						   AND tipo_titulo LIKE ':tipoMercado'
+						   AND tipo_operacion = 'RR'
+						   AND v_rftr:a_hor_gra >= ':fechaIni'
+						   AND v_rftr:a_hor_gra  &lt; ':fechaFin'   
+						   AND v_rftr:a_nemo = ':nemo'
+						ORDER BY FechaOperacionS
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>detalleNemoSimultaneas</value>
+					</key>
+					<value>
+						SELECT   t.v_rftr:a_HOR_GRA                                                                AS FechaOperacionS   ,
+						         t.v_rftr:a_PRECIO                                                                 AS precioSucio       ,
+						         t.v_rftr:a_MONTO                                                                  AS volumen           ,
+						         t.v_rftr:a_CANTIDAD                                                               AS cantidad          ,
+						         t.v_rftr:a_RUSIOPEL                                                               AS sesionNegociacion ,
+						         t.tipo_operacion                                                                  AS tipoOperacion     ,
+						         IF(COALESCE(ctsi.V_CTSI_SIM_TASA,0)=0,stsi.V_STSIa_SIM_TASA,ctsi.V_CTSI_SIM_TASA) AS tasa              ,
+						         t.v_rftr:a_compla                                                                 AS tipoPlazo         ,
+						         t.v_rftr:a_mercado                                                                AS mercado           ,
+						         t.v_rftr:a_fec_emision                                                            AS fechaEmisionS     ,
+						         t.v_rfmi_tasa                                                                     AS tasaCupon         ,
+						         t.v_rfmi_modalidad                                                                AS modalidadPago     ,
+						         t.V_rftr:a_fec_vcto                                                               AS fechaVencimientoS
+						FROM     unicabd.tbrftr:ah t
+						         LEFT JOIN
+						                  ( SELECT V_CTSI_HOR_GRA ,
+						                          V_CTSI_SIM_TASA
+						                  FROM    unicabd.tbctsi
+						                  WHERE   V_CTSI_HOR_GRA >= ':fechaIni'
+						                      AND V_CTSI_HOR_GRA  &lt; ':fechaFin'
+						                  ) ctsi
+						         ON       ctsi.V_CTSI_HOR_GRA = t.v_rftr:a_HOR_GRA
+						         LEFT JOIN
+						                  ( SELECT V_STSIa_HOR_GRA ,
+						                          V_STSIa_SIM_TASA
+						                  FROM    unicabd.tbstsia
+						                  WHERE   V_STSIa_HOR_GRA >= ':fechaIni'
+						                      AND V_STSIa_HOR_GRA  &lt; ':fechaFin'
+						                  ) stsi
+						         ON       stsi.V_STSIa_HOR_GRA = t.v_rftr:a_HOR_GRA
+						WHERE    t.v_rftr:a_RUSIOPEL LIKE ':rueda'
+						     AND v_rftr:a_RUSIOPEL not in( "BOCE", "SIBO")
+						     AND t.tipo_titulo LIKE ':tipoMercado'
+						     AND t.tipo_operacion LIKE 'SI'
+						     AND t.v_rftr:a_hor_gra >= ':fechaIni'
+						     AND t.v_rftr:a_hor_gra  &lt; ':fechaFin'
+						     AND t.v_rftr:a_nemo     = ':nemo'
+						ORDER BY t.v_rftr:a_HOR_GRA
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>DetalleExcel</value>
+					</key>
+					<value>
+						SELECT   v_rftr:a_nemo nemo ,
+						         LEFT(v_rftr:a_hor_gra, 16) fechaString ,
+						         SUM(v_rftr:a_monto) volumen     ,
+						         SUM(v_rftr:a_cantidad) cantidad ,
+						         v_rftr:a_precio ultimoPrecioSucio     ,
+						         v_rftr:a_tasa ultimaTasa
+						FROM
+						         (SELECT  v_rftr:a_nemo    ,
+						                  v_rftr:a_hor_gra ,
+						                  v_rftr:a_monto   ,
+						                  v_rftr:a_cantidad,
+						                  v_rftr:a_precio  ,
+						                  v_rftr:a_tasa
+						         FROM     unicabd.tbrftr:ah use index (index_2)
+						         WHERE    tipo_operacion   = 'CV'
+						              AND v_rftr:a_RUSIOPEL not in( "BOCE", "SIBO")
+						              AND tipo_titulo      = 'T'
+						              AND v_rftr:a_hor_gra >= ':fechaIni'
+						              AND v_rftr:a_hor_gra  &lt; ':fechaFin'
+						              AND v_rftr:a_nemo     = ':nemo'
+						         ORDER BY v_rftr:a_hor_gra DESC
+						         ) A
+						GROUP BY LEFT(v_rftr:a_hor_gra, 10)		
+					</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>

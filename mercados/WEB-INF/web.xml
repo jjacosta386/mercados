@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>    <!--		- Key of the system property that should specify the root directory of		this - web app. Applied by WebAppRootListener or Log4jConfigListener.	-->    <!--		- Location of the Log4J config file, for initialization and refresh		checks. - Applied by Log4jConfigListener.	-->    <!-- default locale -->    <!--		- Location of the XML file that defines the root application context.		- Applied by ContextLoaderServlet.	-->    <!--		- Configures Log4J for this web app. - As this context specifies a		context-param "log4jConfigLocation", its file path - is used to load		the Log4J configuration, including periodic refresh checks. - - Would		fall back to default Log4J initialization (non-refreshing) if no		special - context-params are given. - - Exports a "web app root key",		i.e. a system property that specifies the root - directory of this web		app, for usage in log file paths. - This web app specifies		"petportal.root" (see log4j.properties file).	-->    <!--		- Loads the root application context of this web app at startup, - by		default from "/WEB-INF/applicationContext.xml". - Note that you need		to fall back to Spring's ContextLoaderServlet for - J2EE servers that		do not follow the Servlet 2.4 initialization order. - - Use		WebApplicationContextUtils.getWebApplicationContext(servletContext) -		to access it anywhere in the web application, outside of the		framework. - - The root context is the parent of all servlet-specific		contexts. - This means that its beans are automatically available in		these child contexts, - both for getBean(name) calls and (external)		bean references.	-->    <!-- For JCS properly shutdown -->    <!--		- The ViewRendererServlet acts as a bridge from Portlet requests to		Servlet requests. - Thus a Spring Portlet is able to leverage Spring		MVC's view rendering capabilities.	-->
+    <display-name>mercados</display-name>
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>mercados.root</param-value>
+    </context-param>
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/log4j.properties</param-value>
+    </context-param>
+    <context-param>
+        <param-name>			javax.servlet.jsp.jstl.fmt.locale		</param-name>
+        <param-value>			en_US		</param-value>
+    </context-param>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath*:co/com/bvc/portal/comun/conf/dataSourceBean.xml			classpath*:co/com/bvc/portal/comun/conf/consultasUtils.xml			classpath*:co/com/bvc/portal/comun/conf/DAOBdUnicaBeans.xml			/WEB-INF/context/applicationContext.xml			/WEB-INF/conf/DAO/DAOBeans.xml			/WEB-INF/conf/DAO/*.xml			/WEB-INF/conf/servicio/servicioBeans.xml			/WEB-INF/conf/servicio/propiedadesObjetos.xml			/WEB-INF/conf/servicio/timerBeans.xml			/WEB-INF/conf/portlet/*.xml</param-value>
+    </context-param>
+    <context-param>
+        <param-name>tibcoDomainHome</param-name>
+        <param-value>/apps/tibco/tra/domain/</param-value>
+    </context-param>
+    <context-param>
+        <param-name>tibcoDomainName</param-name>
+        <param-value>PORTALBVC</param-value>
+    </context-param>
+    <context-param>
+        <param-name>tibcoBinding</param-name>
+        <param-value>pof:/com.tibco.pof.admindomain.Deployment/1ca0a264_138dfa2f676_-7f930a0a600b/com.tibco.pof.admindomain.ServiceRuntimeConfiguration/1ca0a264_138dfa2f676_-7f670a0a600b/com.tibco.pof.admindomain.ServiceContainerBindingRuntimeConfiguration/1ca0a264_138dfa2f676_-7f660a0a600b</param-value>
+    </context-param>
+    <filter>
+        <filter-name>role_map_filter</filter-name>
+        <display-name>SecurityRoleMappingsFilter</display-name>
+        <description>Provides HttpServletRequest.isUserInRole() functionality for PAS servlets and portlets</description>
+        <filter-class>com.tibco.ps.portletsvc.security.SecurityRoleMappingsFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>encode_url_filter</filter-name>
+        <display-name>EncodeUrlFilter</display-name>
+        <description>Provides encodeUrl() functionality for PAS resources</description>
+        <filter-class>com.tibco.ps.proxy.ProxyFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>role_map_filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>encode_url_filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.apache.jcs.utils.servlet.JCSServletContextListener</listener-class>
+    </listener>
+    <servlet>
+        <servlet-name>view-servlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.ViewRendererServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>GraficosServlet</servlet-name>
+        <display-name>GraficosServlet</display-name>
+        <description> Servlet Procesamiento de graficos</description>
+        <servlet-class>			co.com.bvc.portal.mercados.vista.servlet.GraficoServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DescargaCanastaServlet</servlet-name>
+        <description> Servlet Descarga de canasta</description>
+        <display-name>DescargaCanastaServlet</display-name>
+        <servlet-class>			co.com.bvc.portal.mercados.vista.servlet.DescargaCanastaServlet		</servlet-class>
+    </servlet>
+    <servlet>
+        <description> Servlet Procesamiento de archivos xls</description>
+        <display-name>DescargaXlsServlet</display-name>
+        <servlet-name>DescargaXlsServlet</servlet-name>
+        <servlet-class>			co.com.bvc.portal.mercados.vista.servlet.DescargaXlsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <description> Servlet Procesamiento de archivos xls para MGC</description>
+        <display-name>DescargaMGCXlsServlet</display-name>
+        <servlet-name>DescargaMGCXlsServlet</servlet-name>
+        <servlet-class>			co.com.bvc.portal.mercados.vista.servlet.DescargaMGCXlsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <description> ServletTicker</description>
+        <display-name>ServletTicker</display-name>
+        <servlet-name>ServletTicker</servlet-name>
+        <servlet-class>			co.com.bvc.portal.mercados.vista.servlet.ServletTicker</servlet-class>
+    </servlet>
+    <servlet>
+        <description>Servlet para borrado de objetos de regiones del Cache</description>
+        <display-name>ClearCacheServlet</display-name>
+        <servlet-name>ClearCacheServlet</servlet-name>
+        <servlet-class>			co.com.bvc.portal.comun.servlet.ClearCacheServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <display-name>DWR Servlet</display-name>
+        <servlet-name>dwr-invoker</servlet-name>
+        <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>crossDomainSessionSecurity</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>Dispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>pas_local</servlet-name>
+        <display-name>Local Portlet Application Service</display-name>
+        <description>PAS Servlet for local dispatching. Please do not change this name.</description>
+        <servlet-class>com.tibco.ps.portletsvc.servlet.LocalDispatchServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>pas_external</servlet-name>
+        <display-name>External Portlet Application Service</display-name>
+        <description>PAS Servlet for dispatching within the same server, but outside of the EAR.</description>
+        <servlet-class>com.tibco.ps.portletsvc.servlet.ExternalDispatchServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>pas_remote</servlet-name>
+        <display-name>SOAP Portlet Application Service</display-name>
+        <description>PAS Servlet for handling requests via SOAP over HTTP. Please do not change this name.</description>
+        <servlet-class>com.tibco.ps.portletsvc.servlet.PASHttpSoapServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Dispatcher</servlet-name>
+        <url-pattern>/app/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>view-servlet</servlet-name>
+        <url-pattern>/WEB-INF/servlet/view</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GraficosServlet</servlet-name>
+        <url-pattern>/GraficosServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DescargaXlsServlet</servlet-name>
+        <url-pattern>/DescargaXlsServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DescargaMGCXlsServlet</servlet-name>
+        <url-pattern>/DescargaMGCXlsServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DescargaCanastaServlet</servlet-name>
+        <url-pattern>/DescargaCanastaServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServletTicker</servlet-name>
+        <url-pattern>/ServletTicker</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ClearCacheServlet</servlet-name>
+        <url-pattern>/ClearCacheServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>pas_local</servlet-name>
+        <url-pattern>/pas_local/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>pas_external</servlet-name>
+        <url-pattern>/pas_external/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>pas_remote</servlet-name>
+        <url-pattern>/pas_remote/*</url-pattern>
+    </servlet-mapping>
+    <taglib>
+        <taglib-uri>http://java.sun.com/portlet</taglib-uri>
+        <taglib-location>/WEB-INF/tibco/taglib/tibco_portlet_taglib.tld</taglib-location>
+    </taglib>
+</web-app>

@@ -1,0 +1,641 @@
+﻿<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="propiedadesObjetos" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry value-ref="propiedadesDerivado">
+					<key>
+						<value>Derivado</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesDerivadoResumen">
+					<key>
+						<value>DerivadoResumen</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesDerivadoResumenExtendido">
+					<key>
+						<value>DerivadoResumenExtendido</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesDerivadoResumenContrato">
+					<key>
+						<value>DerivadoResumenContrato</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesIndice">
+					<key>
+						<value>ResumenIndice</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesIndiceResumen">
+					<key>
+						<value>ResumenIndiceLista</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesRentaFijaResumen">
+					<key>
+						<value>RentaFijaResumen</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesRentaFijaResumenEspecie">
+					<key>
+						<value>RentaFijaResumenEspecie</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesRentaFijaResumenTipoTitulo">
+					<key>
+						<value>RentaFijaResumenTipoTitulo</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesRentaFijaSumaOperacion">
+					<key>
+						<value>RentaFijaSumaOperacion</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesTituloAccion">
+					<key>
+						<value>TituloAccion</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesResumenAccion">
+					<key>
+						<value>ResumenAccion</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesResumenAccionMGC">
+					<key>
+						<value>ResumenAccionMGC</value>
+					</key>
+				</entry>
+				<entry value-ref="propiedadesResumenBoceas">
+					<key>
+						<value>ResumenBoceas</value>
+					</key>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesDerivado" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>nombreDerivado</value>
+					</key>
+					<value>Nombre</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosResumen</value>
+					</key>
+					<value>Resumen</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesDerivadoResumen" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>contrato</value>
+					</key>
+					<value>Instrumento</value>
+				</entry>
+				<entry>
+					<key>
+						<value>contratos</value>
+					</key>
+					<value>No Contratos</value>
+				</entry>
+				<entry>
+					<key>
+						<value>openInterest</value>
+					</key>
+					<value>Open Interest</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>volumen</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumenMwh</value>
+					</key>
+					<value>volumenMwh</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosExtendidos</value>
+					</key>
+					<value>Detalle</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesDerivadoResumenExtendido" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>fecha</value>
+					</key>
+					<value>Fecha y Hora%</value>
+				</entry>
+				<entry>
+					<key>
+						<value>contrato</value>
+					</key>
+					<value>Contrato / Vencimiento</value>
+				</entry>
+				<entry>
+					<key>
+						<value>contratos</value>
+					</key>
+					<value>No Contratos</value>
+				</entry>
+				<entry>
+					<key>
+						<value>openInterest</value>
+					</key>
+					<value>Open Interest</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>Volumen</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumenMwh</value>
+					</key>
+					<value>volumenMwh</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precio</value>
+					</key>
+					<value>Precio</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacion</value>
+					</key>
+					<value>Variación%</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesDerivadoResumenContrato" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>contrato</value>
+					</key>
+					<value>Contrato</value>
+				</entry>
+				<entry>
+					<key>
+						<value>fecha</value>
+					</key>
+					<value>Fecha</value>
+				</entry>
+				<entry>
+					<key>
+						<value>contratos</value>
+					</key>
+					<value>No Contratos</value>
+				</entry>
+				<entry>
+					<key>
+						<value>openInterest</value>
+					</key>
+					<value>Open Interest</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>Volumen</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumenMwh</value>
+					</key>
+					<value>volumenMwh</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precio</value>
+					</key>
+					<value>Precio</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacion</value>
+					</key>
+					<value>Variación%</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precioMayor</value>
+					</key>
+					<value>Precio Mayor</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precioMenor</value>
+					</key>
+					<value>Precio Menor</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precioApertura</value>
+					</key>
+					<value>Precio Apertura</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesIndice" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>fechaInt</value>
+					</key>
+					<value>Fecha</value>
+				</entry>
+				<entry>
+					<key>
+						<value>indice</value>
+					</key>
+					<value>Indice</value>
+				</entry>
+				<entry>
+					<key>
+						<value>valorHoy</value>
+					</key>
+					<value>Valor Hoy</value>
+				</entry>
+				<entry>
+					<key>
+						<value>valorAyer</value>
+					</key>
+					<value>Valor Ayer</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacionHoy</value>
+					</key>
+					<value>Variacion %</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacionAbs</value>
+					</key>
+					<value>Variación Absoluta</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacion12Meses</value>
+					</key>
+					<value>Variacion 12 meses</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacionAnual</value>
+					</key>
+					<value>Variación Anual</value>
+				</entry>
+
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesIndiceResumen" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>nombreIndice</value>
+					</key>
+					<value>Indice</value>
+				</entry>
+				<entry>
+					<key>
+						<value>mercado</value>
+					</key>
+					<value>Mercado</value>
+				</entry>
+				<entry>
+					<key>
+						<value>valorHoy</value>
+					</key>
+					<value>Valor Hoy</value>
+				</entry>
+				<entry>
+					<key>
+						<value>valorAyer</value>
+					</key>
+					<value>Valor Ayer</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacionAbs</value>
+					</key>
+					<value>Variación Absoluta</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacionHoy</value>
+					</key>
+					<value>Variacion %</value>
+				</entry>
+				
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesRentaFijaResumen" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>listadoTitulosDeudaPrivada</value>
+					</key>
+					<value>Titulos Deuda Privada</value>
+				</entry>
+				<entry>
+					<key>
+						<value>listadoTitulosDeudaPublica</value>
+					</key>
+					<value>Titulos Deuda Publica</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesRentaFijaResumenTipoTitulo" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>especies</value>
+					</key>
+					<value>Especies</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesRentaFijaResumenEspecie" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>cantidad</value>
+					</key>
+					<value>Cantidad</value>
+				</entry>
+				<entry>
+					<key>
+						<value>emisor</value>
+					</key>
+					<value>Emisor</value>
+				</entry>
+				<entry>
+					<key>
+						<value>nemotecnico</value>
+					</key>
+					<value>Nemotecnico</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ultimoPrecioSucio</value>
+					</key>
+					<value>Ultimo Precio Sucio</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>Volumen</value>
+				</entry>
+
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesRentaFijaSumaOperacion" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>cantidad</value>
+					</key>
+					<value>Cantidad</value>
+				</entry>
+				<entry>
+					<key>
+						<value>emisor</value>
+					</key>
+					<value>Emisor</value>
+				</entry>
+				<entry>
+					<key>
+						<value>nemo</value>
+					</key>
+					<value>Nemotecnico</value>
+				</entry>
+				<entry>
+					<key>
+						<value>fechaUltimaOperacion</value>
+					</key>
+					<value>Fecha Ultima Operacion</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ultimaTasa</value>
+					</key>
+					<value>Ultima Tasa</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ultimoPrecioSucio</value>
+					</key>
+					<value>Ultimo Precio Sucio</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>Volumen</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesResumenAccion" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>cantidad</value>
+					</key>
+					<value>Cantidad</value>
+				</entry>
+				<entry>
+					<key>
+						<value>nemoTecnico</value>
+					</key>
+					<value>Nemotecnico</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>Volumen</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ultimoPrecio</value>
+					</key>
+					<value>Ultimo Precio</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacion</value>
+					</key>
+					<value>Variacion%</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesResumenAccionMGC" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>cantidad</value>
+					</key>
+					<value>Cantidad</value>
+				</entry>
+				<entry>
+					<key>
+						<value>nemoTecnico</value>
+					</key>
+					<value>Nemotecnico</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>Volumen</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ultimoPrecio</value>
+					</key>
+					<value>Ultimo Precio</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacion</value>
+					</key>
+					<value>Variacion%</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesTituloAccion" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>nemotecnico</value>
+					</key>
+					<value>Nemotecnico</value>
+				</entry>
+				<entry>
+					<key>
+						<value>hora</value>
+					</key>
+					<value>fecha</value>
+				</entry>
+				<entry>
+					<key>
+						<value>cantidad</value>
+					</key>
+					<value>Cantidad</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>Volumen</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precioCierre</value>
+					</key>
+					<value>Precio Cierre</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precioMayor</value>
+					</key>
+					<value>Precio Mayor</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precioMedio</value>
+					</key>
+					<value>Precio Medio</value>
+				</entry>
+				<entry>
+					<key>
+						<value>precioMenor</value>
+					</key>
+					<value>Precio Menor</value>
+				</entry>
+				<entry>
+					<key>
+						<value>variacion</value>
+					</key>
+					<value>Variacion%</value>
+				</entry>
+				<entry>
+					<key>
+						<value>varAbsoluta</value>
+					</key>
+					<value>Variacion Absoluta</value>
+				</entry>
+
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="propiedadesResumenBoceas" class="java.util.LinkedHashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>nemoTecnico</value>
+					</key>
+					<value>Nemotecnico</value>
+				</entry>
+				<entry>
+					<key>
+						<value>cantidad</value>
+					</key>
+					<value>Cantidad</value>
+				</entry>
+				<entry>
+					<key>
+						<value>volumen</value>
+					</key>
+					<value>Volumen</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>

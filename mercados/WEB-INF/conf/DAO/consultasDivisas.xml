@@ -1,0 +1,142 @@
+ <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="consultasMercadosDivisas" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>obtenerFestivoAmericanoPorFecha</value>
+					</key>
+					<value>
+						select date(fecha_festiva_americana) fecha
+						from portalbvc.fecha_no_bursatil_americana 
+						where fecha_festiva_americana =  ':fecha'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerMontoTotalRegistroPorFecha</value>
+					</key>
+					<value>
+						select sum(coalesce(divi.v_dvtr:a_monto, 0)) monto
+						from unicabd.tbdvtr:a divi
+						where divi.v_dvtr:a_hor_gra >= ':fechaIni' AND
+								divi.v_dvtr:a_hor_gra &lt;= ':fechaFin'
+						group by substring(divi.v_dvtr:a_hor_gra,1,10)
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerTotalRegistroDivisaYMercadoPorFecha</value>
+					</key>
+					<value>
+						select divi.V_DVTR:a_DIVISA divisa, 
+								divi.V_DVTR:a_MERCADO mercadoInicial, 
+								sum(coalesce(divi.v_dvtr:a_cantidad,0)) montoDolares,
+								sum(coalesce(divi.v_dvtr:a_monto,0)) monto
+						from unicabd.tbdvtr:a divi
+						where divi.v_dvtr:a_hor_gra >= ':fechaIni' AND
+							divi.v_dvtr:a_hor_gra &lt;= ':fechaFin'
+						group by divi.V_DVTR:a_DIVISA, divi.V_DVTR:a_MERCADO
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerDetalleRegistroPorDivisaYMercado</value>
+					</key>
+					<value>
+						select divi.V_DVTR:a_TCP tasa, 
+								divi.V_DVTR:a_FECLIQ fechaLiquidacionInt, 
+								divi.v_dvtr:a_cantidad montoDolares,
+								divi.v_dvtr:a_monto monto
+						from unicabd.tbdvtr:a divi
+						where divi.v_dvtr:a_hor_gra >= ':fechaIni' AND
+							divi.v_dvtr:a_hor_gra &lt;= ':fechaFin'
+								and divi.V_DVTR:a_DIVISA = ':nombreDivisa'
+								and divi.V_DVTR:a_MERCADO = ':inicialMercado'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>obtenerDatosGraficoSetFx</value>
+					</key>
+					<value>
+						select cast(
+									concat(
+										substr(p_fecha_historia_hoy,1,4), '-', 
+										substr(p_fecha_historia_hoy,5,2), '-',
+										substr(p_fecha_historia_hoy,7),':',
+										substr(p_hora_historia_hoy,1,2), ':', 
+										substr(p_hora_historia_hoy,3,2),':00') AS CHAR)  fechaString,
+								min(cast(p_precio_hoy as decimal(10,2))) valorCierre,
+								max(cast(p_monto_hoy as decimal)) volumen
+						from portalbvc.divisas_set_fx
+						where p_mercado_hoy = ':codigoMercado'
+							AND p_hora_historia_hoy &lt;= ':hora' 
+							AND p_bandera_clase_mensaje = 'A'
+							AND p_bandera_registrada_hoy  NOT IN ('R')
+						group by left(fechaString,16)
+						order by fechaString		
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ObtenerSetFxPorFecha</value>
+					</key>
+					<value>
+						select  *
+						from (select cast(p_precio_hoy as decimal(10,2)) precioApertura
+							  from portalbvc.divisas_set_fx
+							  where p_mercado_hoy = ':codigoMercado'
+									AND p_bandera_clase_mensaje = 'A'
+									AND p_hora_historia_hoy  &lt; ':hora'
+									AND p_bandera_registrada_hoy  NOT IN ('R')
+							  order by p_hora_historia_hoy limit 1) primero,
+							(select p_hora_historia_hoy horaUltimo, 
+									cast(p_precio_hoy as decimal(10,2)) precioUltimo,
+									cast(p_monto_hoy as decimal) volumenUltimo
+							  from portalbvc.divisas_set_fx
+							  where p_hora_historia_hoy &lt; ':hora'
+									  AND p_mercado_hoy = ':codigoMercado'
+									  AND p_bandera_clase_mensaje = 'A'
+									  AND p_bandera_registrada_hoy  NOT IN ('R')
+							  order by p_hora_historia_hoy desc limit 1) ultimo,
+							(select MIN(cast(p_precio_hoy as decimal(10,2))) precioMinimo,
+									MAX(cast(p_precio_hoy as decimal(10,2))) precioMaximo
+							  from portalbvc.divisas_set_fx
+							  where p_hora_historia_hoy &lt; ':hora'
+									  AND p_mercado_hoy = ':codigoMercado'
+									  AND p_bandera_clase_mensaje = 'A'
+									  AND p_bandera_registrada_hoy  NOT IN ('R') ) calculosT,	  
+							(select  cast((sum(p_monto_hoy * p_precio_hoy) / montoTotal) as decimal(10,2)) precioPromedio,
+									AVG(cast(p_monto_hoy as decimal)) volumenPromedio,
+									MIN(cast(p_monto_hoy as decimal)) volumenMinimo,
+									MAX(cast(p_monto_hoy as decimal)) volumenMaximo,
+									SUM(cast(p_monto_hoy as decimal)) volumenNegociado
+							from portalbvc.divisas_set_fx,
+								(select sum(seti.p_monto_hoy) montoTotal 
+								from portalbvc.divisas_set_fx  seti
+								where p_hora_historia_hoy &lt; ':hora'
+									AND seti.p_bandera_clase_mensaje  = 'A' 
+									and seti.p_mercado_hoy = ':codigoMercado') total
+								where p_hora_historia_hoy &lt; ':hora'
+									  AND p_mercado_hoy = ':codigoMercado'
+									  AND p_bandera_clase_mensaje = 'A') calculos
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>ObtenerValorTRMDia</value>
+					</key>
+					<value>
+						select trm.v_mdi_valor
+						from unicabd.tbmondia trm
+						where trm.V_MDI_FECHA = :fecha
+							  and trm.V_MDI_MONEDA = 'TRM'
+					</value>
+				</entry>
+				
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>

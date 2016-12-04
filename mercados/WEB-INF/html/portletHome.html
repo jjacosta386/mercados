@@ -1,0 +1,403 @@
+<script type="text/javascript" src="/mercados/js/mercados.js"></script>
+<script type="text/javascript" src="/mercados/js/licenciaAmStock.js"></script>
+
+<script>
+	var cambiarDeudaON = false;
+	var isCerradoRentaFija = true;
+	var isCerradoAccionBVC = true;
+	var isCerradoDivisas = true;
+	var isCerradoAcciones = true;
+	var isCerradoDerivados = true;
+	var isCerradoIndices = false;
+	var indiceAbierto = 1;
+	var opcionAcciones = 0;
+	var opcionDerivados = 0;
+
+	var entro = false;
+	function amGetZoom(chart_id, from, to) {
+		// alert("aqui toy");
+		flashMovie = document.getElementById(chart_id);
+		var fechaIni = from.substring(0, 10);
+		var fechaFin = to.substring(0, 10);
+		if (fechaIni != fechaFin) {
+			if (!entro) {
+				fechaFin = restarUnDia(fechaFin);
+				entro = true;
+				flashMovie.setZoom(from, fechaFin + " 12:59");
+			} else {
+				entro = false;
+			}
+		}
+	}
+
+	function restarUnDia(fechaFin) {
+		unDia = parseInt(1000 * 60 * 60 * 24);
+		anioFin = fechaFin.substring(0, 4);
+		mesFin = fechaFin.substring(5, 7);
+		diaFin = fechaFin.substring(8, 10);
+
+		fecha = new Date();
+		fecha.setFullYear(anioFin, mesFin - 1, diaFin);
+
+		fecha.setTime(parseInt(fecha.getTime() - unDia));
+		dia = fecha.getDate();
+		mes = fecha.getMonth() + 1;
+		anio = fecha.getYear();
+
+		if (anio < 1000) {
+			anio = anio + 1900;
+		}
+
+		return (anio + "-" + mes + "-" + dia);
+	}
+
+	function cambiarDeuda(id, id2) {
+		var obj = document.getElementById(id);
+		var obj2 = document.getElementById(id2);
+		if (obj.style.display == "block") {
+			obj.style.display = "none";
+			obj2.style.display = "block";
+		} else {
+			obj2.style.display = "none";
+			obj.style.display = "block";
+		}
+		cambiarDeudaON = !cambiarDeudaON;
+	}
+
+	manejarAcordeonAccionBVC = function() {
+		mostrar_segmento_acordeon_activo('titulo_5');
+
+		MM_effectBlind('seg_res_5', 500, '0%', '100%', true);
+		ele = document.getElementById('graficoBVC');
+		if (!isCerradoAccionBVC) {
+			ele.style.display = 'none';
+		} else {
+			ele.style.display = 'block';
+		}
+		isCerradoAccionBVC = !isCerradoAccionBVC;
+	}
+
+	cambiarDerivados = function() {
+		var obj = document.getElementById("listaFuturos");//futuros
+		var obj2 = document.getElementById("listaOpciones");//opciones
+		var obj3 = document.getElementById("listaOPCF");//opcfs
+		var lista = document.getElementById("filtroDerivados");
+		if (lista.value == "F") {
+			obj.style.display = "block";
+			obj2.style.display = "none";
+			obj3.style.display = "none";
+			opcionDerivados = 0;
+		} else if (lista.value == "O") {
+			obj.style.display = "none";
+			obj2.style.display = "block";
+			obj3.style.display = "none";
+			opcionDerivados = 1;
+		} else {
+			obj.style.display = "none";
+			obj2.style.display = "none";
+			obj3.style.display = "block";
+			opcionDerivados = 2;
+		}
+	}
+
+	manejarAcordeonDerivados = function() {
+		mostrar_segmento_acordeon_activo('titulo_2');
+		MM_effectBlind('seg_res_2', 500, '0%', '100%', true);
+		isCerradoDerivados = !isCerradoDerivados;
+	}
+
+	cambiarAcciones = function() {
+		var lista = document.getElementById("filtroAcciones");
+		try {
+			var obj = document.getElementById("lista_de_acciones_0");//negociadas
+			var obj2 = document.getElementById("lista_de_acciones_1");//suben
+			var obj3 = document.getElementById("lista_de_acciones_2");//bajan
+			if (lista.value == "1") {
+				obj.style.display = "block";
+				obj2.style.display = "none";
+				obj3.style.display = "none";
+				opcionAcciones = 0;
+			} else if (lista.value == "2") {
+				obj.style.display = "none";
+				obj2.style.display = "block";
+				obj3.style.display = "none";
+				opcionAcciones = 1;
+			} else {
+				obj.style.display = "none";
+				obj2.style.display = "none";
+				obj3.style.display = "block";
+				opcionAcciones = 2;
+			}
+		} catch (err) {
+		}
+	}
+
+	 cambiarIndices = function() {
+		var lista = document.getElementById("filtroIndices");
+		try {
+			var obj = document.getElementById("lista_de_indices_1");//negociadas
+		  	var obj2 = document.getElementById("lista_de_indices_2");//suben
+		  	var obj5 = document.getElementById("lista_de_indices_3");//suben
+		  	var obj3 = document.getElementById("msj");//negociadas
+		  	var obj4 = document.getElementById("msjrf");//suben
+		  	if (lista.value=="1") {
+				obj.style.display = "block";
+		   		obj2.style.display = "none";
+		   		obj5.style.display = "none";
+		   		obj3.style.display = "block";
+		   		obj4.style.display = "none";
+		   		opcionAcciones = 0;
+		  	} else if (lista.value=="2") {
+		   		obj.style.display = "none";
+		   		obj5.style.display = "none";
+		   		obj2.style.display = "block";
+		   		obj3.style.display = "block";
+		   		obj4.style.display = "none";
+		   		opcionAcciones = 1;
+		  	}else if (lista.value=="3") {
+		   		obj.style.display = "none";
+		   		obj2.style.display = "none";
+		   		obj5.style.display = "block";
+		   		obj3.style.display = "none";
+		   		obj4.style.display = "block";
+		   		opcionAcciones = 1;
+		  	}
+	  	}catch (err) {
+	  	}
+ 	}
+
+	manejarAcordeonAcciones = function() {
+		mostrar_segmento_acordeon_activo('titulo_1');
+		MM_effectBlind('seg_res_1', 500, '0%', '100%', true);
+		isCerradoAcciones = !isCerradoAcciones;
+	}
+
+	function manejarSegmento(numSeg) {
+		isCerradoIndices = false;
+		mostrar_grafica_indice('indice_grafica_' + numSeg);
+		mostrar_resumen_indice_activo('resumen_indice_' + numSeg);
+		for ( var i = 1; i < 4; i++) {
+			if (i != numSeg) {
+				mostrar_resumen_indice_inactivo('resumen_indice_' + i);
+			}
+		}
+	}
+	
+	function manejarSegmentoRF(numSeg){
+		mostrar_grafica_indice('indice_grafica_RF_' + numSeg);
+		mostrar_resumen_indice_activo('resumen_indice_RF_' + numSeg);
+		for (var i=1;i<4;i++){
+			if (i != numSeg){
+				mostrar_resumen_indice_inactivo('resumen_indice_RF_' + i);
+			}
+		}	
+	}
+
+	function manejarIndicesHome() {
+		mostrar_segmento_acordeon_activo('titulo_7');
+		isCerradoIndices = !isCerradoIndices;
+		if (!isCerradoIndices) {
+			manejarSegmento(1);
+			manejarSegmentoRF(1);
+		} else {
+			for ( var i = 1; i < 4; i++) {
+				mostrar_resumen_indice_inactivo('resumen_indice_' + i);
+				mostrar_resumen_indice_inactivo('resumen_indice_RF' + i);
+			}
+		}
+	}
+</script>
+<script type="text/javascript">
+	function cargarMercadosHome() {
+		var xmlHttp;
+		try {
+			xmlHttp = new XMLHttpRequest();// Firefox, Opera 8.0+, Safari
+		} catch (e) {
+			try {
+				xmlHttp = new ActiveXObject("Msxml2.XMLHTTP"); // Internet Explorer
+			} catch (e) {
+				try {
+					xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch (e) {
+					alert("No AJAX!?");
+					return false;
+				}
+			}
+		}
+		xmlHttp.onreadystatechange = function() {
+			if (xmlHttp.readyState == 4) {
+				var response = xmlHttp.responseText;
+				document.getElementById('contenedor_derecho').innerHTML = response;
+				var indiceGrafico1 = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstock1", "248", "175", "8", "#FFFFFF");
+				indiceGrafico1.addVariable("path", "");
+				indiceGrafico1
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=ICSC&titulo=COLSC&url=/amstock/settings/indice_home_stock_settings.xml&mercInd=RV&tipoG=INDICE"));
+				indiceGrafico1.addVariable("chart_id", "amstock1");
+				indiceGrafico1.addVariable("preloader_color", "#999999");
+				licenciaGrafica(indiceGrafico1);
+				indiceGrafico1.write('graficoIndice1');
+
+				var indiceGrafico2 = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstock2", "248", "175", "8", "#FFFFFF");
+				indiceGrafico2.addVariable("path", "");
+				indiceGrafico2
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=ICAP&titulo=COLCAP&url=/amstock/settings/indice_home_stock_settings.xml&mercInd=RV&tipoG=INDICE"));
+				indiceGrafico2.addVariable("chart_id", "amstock2");
+				indiceGrafico2.addVariable("preloader_color", "#999999");
+				licenciaGrafica(indiceGrafico2);
+				indiceGrafico2.write('graficoIndice2');
+
+				var indiceGrafico3 = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstock3", "248", "175", "8", "#FFFFFF");
+				indiceGrafico3.addVariable("path", "");
+				indiceGrafico3
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=IIRC&titulo=COLIR&url=/amstock/settings/indice_home_stock_settings.xml&mercInd=RV&tipoG=INDICE"));
+				indiceGrafico3.addVariable("chart_id", "amstock3");
+				indiceGrafico3.addVariable("preloader_color", "#999999");
+				licenciaGrafica(indiceGrafico3);
+				indiceGrafico3.write('graficoIndice3');
+				manejarSegmento(indiceAbierto);
+
+				var indiceGraficoRF1 = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstock3", "248", "175", "8", "#FFFFFF");
+				indiceGraficoRF1.addVariable("path", "");
+				indiceGraficoRF1
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=CTES&titulo=COLTES&url=/amstock/settings/indice_home_stock_settings_RF.xml&mercInd=RF&tipoG=INDICE"));
+				indiceGraficoRF1.addVariable("chart_id", "amstock4");
+				indiceGraficoRF1.addVariable("preloader_color", "#999999");
+				licenciaGrafica(indiceGraficoRF1);
+				indiceGraficoRF1.write('graficoIndiceRF1');
+				//manejarSegmento(indiceAbierto);
+				
+				var indiceGraficoRF2 = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstock3", "248", "175", "8", "#FFFFFF");
+				indiceGraficoRF2.addVariable("path", "");
+				indiceGraficoRF2
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=CTCP&titulo=COLTES%20CP&url=/amstock/settings/indice_home_stock_settings_RF.xml&mercInd=RF&tipoG=INDICE"));
+				indiceGraficoRF2.addVariable("chart_id", "amstock5");
+				indiceGraficoRF2.addVariable("preloader_color", "#999999");
+				licenciaGrafica(indiceGraficoRF2);
+				indiceGraficoRF2.write('graficoIndiceRF2');
+				
+				var indiceGraficoRF3 = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstock3", "248", "175", "8", "#FFFFFF");
+				indiceGraficoRF3.addVariable("path", "");
+				indiceGraficoRF3
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=CTLP&titulo=COLTES%20LP&url=/amstock/settings/indice_home_stock_settings_RF.xml&mercInd=RF&tipoG=INDICE"));
+				indiceGraficoRF3.addVariable("chart_id", "amstock6");
+				indiceGraficoRF3.addVariable("preloader_color", "#999999");
+				licenciaGrafica(indiceGraficoRF3);
+				indiceGraficoRF3.write('graficoIndiceRF3');
+				manejarSegmentoRF(indiceAbierto);
+				
+				var indiceGrafico7 = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstock3", "248", "175", "8", "#FFFFFF");
+				indiceGrafico7.addVariable("path", "");
+				indiceGrafico7
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=IIBR&titulo=COLIBR&url=/amstock/settings/indice_home_stock_settings_MM.xml&mercInd=MM&tipoG=INDICE"));
+				indiceGrafico7.addVariable("chart_id", "amstock7");
+				indiceGrafico7.addVariable("preloader_color", "#999999");
+				licenciaGrafica(indiceGrafico7);
+				indiceGrafico7.write('graficoIndiceRF7');
+
+				var graficoBvc = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstockBVC", "248", "175", "8", "#FFFFFF");
+				graficoBvc.addVariable("path", "");
+				graficoBvc
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=BVC&url=/amstock/settings/bvc_stock_settings.xml&tipoG=ACCION"));
+				graficoBvc.addVariable("chart_id", "amstockBVC");
+				graficoBvc.addVariable("preloader_color", "#999999");
+				licenciaGrafica(graficoBvc);
+				graficoBvc.write('graficoBVC');
+
+				var graficoDivisa = new SWFObject(
+						"%%SiteContent.Portlet('common.bvc.recursos')%%/amstock/amstock.swf",
+						"amstockDivisa", "255", "175", "8", "#FFFFFF");
+
+				graficoDivisa.addVariable("path", "");
+				graficoDivisa
+						.addVariable(
+								"settings_file",
+								escape("/mercados/GraficosServlet?conf=dolar&url=/amstock/settings/divisas_stock_settings.xml&tipoG=DIVISAS"));
+				graficoDivisa.addVariable("chart_id", "amstockDivisa");
+				graficoDivisa.addVariable("preloader_color", "#999999");
+				licenciaGrafica(graficoDivisa);
+				graficoDivisa.write('graficaDivisas');
+
+				if (!isCerradoAccionBVC) {
+					isCerradoAccionBVC = !isCerradoAccionBVC;
+					manejarAcordeonAccionBVC();
+				}
+
+				if (!isCerradoRentaFija) {
+					mostrar_segmento_acordeon_activo('titulo_3');
+					MM_effectBlind('seg_res_3', 500, '0%', '100%', true);
+				}
+
+				if (cambiarDeudaON) {
+					cambiarDeuda('rf_publica', 'rf_privada');
+					cambiarDeudaON = !cambiarDeudaON;
+					document.getElementById('opcionesDeuda').selectedIndex = "1";
+				}
+
+				if (!isCerradoDivisas) {
+					mostrar_segmento_acordeon('seg_res_4');
+					MM_effectBlind('seg_res_4', 500, '0%', '100%', true);
+				}
+
+				document.getElementById("filtroAcciones").selectedIndex = opcionAcciones;
+				cambiarAcciones();
+
+				if (!isCerradoAcciones) {
+					mostrar_segmento_acordeon_activo('titulo_1');
+					MM_effectBlind('seg_res_1', 500, '0%', '100%', true);
+				}
+
+				document.getElementById("filtroDerivados").selectedIndex = opcionDerivados;
+				cambiarDerivados();
+
+				if (!isCerradoDerivados) {
+					mostrar_segmento_acordeon_activo('titulo_2');
+					MM_effectBlind('seg_res_2', 500, '0%', '100%', true);
+				}
+
+				setTimeout('cargarMercadosHome()', 120000);
+			}
+		}
+
+		xmlHttp.open("GET",
+				"/pps/tibco/PortalBVC/Home/Mercados/HomeMercadosCore", true);
+		xmlHttp.send(null);
+	}
+
+	window.onload = function() {
+		setTimeout('cargarMercadosHome()', 1);
+	}
+</script>
+
+<div id="ReloadThis"></div>

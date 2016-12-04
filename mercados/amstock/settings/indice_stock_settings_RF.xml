@@ -1,0 +1,177 @@
+<settings>
+	<margins>0</margins>
+	<max_series>1400</max_series>
+	<text_size>9</text_size>
+	<font>arial</font>
+	<add_time_stamp>true</add_time_stamp>
+	<number_format>
+		<decimal_separator>.</decimal_separator>
+		<thousand_separator>,</thousand_separator>
+		<digits_after_decimal>
+			<data>4</data>
+		</digits_after_decimal>
+		<letters>
+			<letter number="1000000">M</letter>
+			<letter number="1000000000">B</letter>
+		</letters>
+	</number_format>
+	<date_formats>
+		<x_axis>
+			<minutes>&amp;nbsp;</minutes>
+			<hours>hh:00</hours>
+			<days>DD month</days>
+			<months>month</months>
+			<years>YYYY</years>
+		</x_axis>
+		<legend>
+			<minutes>hh:mm - DD month - YYYY</minutes>
+			<hours>hh:mm - DD month - YYYY</hours>
+			<weeks>month DD - YYYY</weeks>
+			<days>DD month - YYYY</days>
+			<months>month - YYYY</months>
+			<years>YYYY</years>
+		</legend>
+	</date_formats>
+	<data_sets>
+		#paramDataSet#
+	</data_sets>
+	<charts>
+		<chart>
+			<height>60</height>
+			<title></title>
+			<border_color>#CCCCCC</border_color>
+			<border_alpha>0</border_alpha>
+			<grid>
+				<x>
+					<alpha>10</alpha>
+					<dashed>false</dashed>
+					<color>dae1e7</color>
+				</x>
+				<y_left>
+					<enabled>true</enabled>
+					<alpha>30</alpha>
+					<dashed>false</dashed>
+					<color>dae1e7</color>
+				</y_left>
+			</grid>
+			<values>
+				<x>
+					<enabled>true</enabled>
+					<bg_color>eaeaea</bg_color>
+					<text_color>333333</text_color>
+					<text_size>9</text_size>
+				</x>
+				<y_left>
+					<enabled>true</enabled>
+					<bg_color>d2eefc</bg_color>
+					<text_color>333333</text_color>
+					<text_size>9</text_size>
+				</y_left>
+			</values>
+			<legend>
+				<enabled>true</enabled>
+				<positive_color>7f8da9</positive_color>
+				<negative_color>db4c3c</negative_color>
+				<show_date>true</show_date>
+				<key_size>6.7</key_size>
+			</legend>
+			<column_width>70</column_width>
+			<graphs>
+				<graph>
+					<type>line</type>
+					<data_sources>
+						<close>close</close>
+					</data_sources>
+					<period_value />
+					<color>1584d5</color>
+					<compare_source>close</compare_source>
+					<cursor_color>1584d5</cursor_color>
+					<fill_alpha>0</fill_alpha>
+					<legend>
+						<date key="true" title="true">
+              <![CDATA[{close}]]>
+						</date>
+						<date_comparing key="true" title="true">
+              <![CDATA[<b>{close.close}]]>
+						</date_comparing>
+						<period_comparing key="true" title="true">
+              	<![CDATA[<b>{close.close}]]>
+						</period_comparing>
+					</legend>
+				</graph>
+				<graph>
+					<type>line</type>
+					<data_sources>
+						<close>last</close>
+					</data_sources>
+					<color>ff00000</color>
+					<period_value />
+					<compare_source>close</compare_source>
+					<cursor_color>ff00000</cursor_color>
+					<fill_alpha>0</fill_alpha>
+					<legend>
+						<date key="true" title="false">
+              <![CDATA[Ayer: {close}]]>
+						</date>
+						<!-- period key="true" title="true"> <![CDATA[open:<b>{open}</b> low:<b>{low}</b> 
+							high:<b>{high}</b> close:<b>{close}</b>]]> </period -->
+
+					</legend>
+				</graph>
+			</graphs>
+			<comparing>
+				<recalculate>true</recalculate>
+			</comparing>
+		</chart>
+	</charts>
+	<data_set_selector>
+		<enabled>false</enabled>
+		<width>120</width>
+		<compare_list_box_title>Comparar &#237;ndice con:
+		</compare_list_box_title>
+	</data_set_selector>
+	<period_selector>
+		<button>
+			<bg_color_hover>FFFFFF</bg_color_hover>
+			<bg_color_selected>E4F7FD</bg_color_selected>
+			<text_color_selected>000000</text_color_selected>
+		</button>
+		<periods>
+			<period type="DD" count="9">Semana</period>
+			<period type="MM" count="1">Mes</period>
+			<period type="MM" count="3">Trimestre</period>
+			<period type="MM" count="6">Semestre</period>
+			<period type="YYYY" count="1">A&#241;o</period>
+		</periods>
+		<custom_period_enabled>false</custom_period_enabled>
+		<!--periods_title>Zoom:</periods_title -->
+		<!--custom_period_title>Custom period:</custom_period_title -->
+	</period_selector>
+	<header>
+		<enabled>true</enabled>
+		<text>
+    	<![CDATA[<strong style="text-align: center;">#param2#</strong>]]>
+		</text>
+		<text_color>1584D5</text_color>
+		<bg_color>DDDDDD</bg_color>
+	</header>
+	<plot_area>
+		<border_color>b6bece</border_color>
+	</plot_area>
+	<scroller>
+		<graph_data_source>close</graph_data_source>
+		<resize_button_style>dragger</resize_button_style>
+		<enabled>true</enabled>
+		<playback>
+			<enabled>false</enabled>
+			<color>002b6d</color>
+			<color_hover>db4c3c</color_hover>
+			<speed>3</speed>
+			<max_speed>10</max_speed>
+			<loop />
+			<speed_indicator>
+				<color>002b6d</color>
+			</speed_indicator>
+		</playback>
+	</scroller>
+</settings>

@@ -1,0 +1,714 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="consultasMercadosDerivadosDrvx" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry>
+					<key>
+						<value>mercadosDerivados</value>
+					</key>
+					<value> 
+						SELECT
+						CASE V_DxMI_TIPO_CONTRATO 
+							WHEN 'M' THEN 'Mercancia'
+							WHEN 'D' THEN 'Deuda'
+							WHEN 'A' THEN 'Acciones'
+							WHEN 'F' THEN 'Futuros Energéticos'
+							WHEN 'I' THEN 'Indice'
+							WHEN 'T' THEN 'Interes'
+							WHEN 'O' THEN 'Opcion'
+							WHEN 'E' THEN 'Estrategia'
+							WHEN 'C' THEN 'Moneda Extranjera'
+							ELSE 'Otros' END contrato,
+						SUM(CANTIDAD) contratos,
+						SUM(MONTO) volumen,
+						SUM(v_opindx_valor) openInterest,
+						sum(v_dxmi_valor_nominal * CANTIDAD) volumenMwh
+						FROM unicabd.tbdxmi
+						LEFT JOIN unicabd.tbopindx ON v_opindx_cod_crcc = v_dxmi_nemo_crcc AND v_opindx_fecha = :fechaAyer
+						INNER JOIN
+							(SELECT
+							v_dxtr_nemo nemo,
+							SUM(v_dxtr_cantidad) cantidad,
+							SUM(v_dxtr_monto) monto
+							FROM unicabd.tbdxtr
+							WHERE v_dxtr_hor_gra &lt; ':fechaMenosV'
+							GROUP BY v_dxtr_nemo) opes
+						ON nemo = v_dxmi_cod_contrato
+						GROUP BY contrato
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>mercadosDerivadosHistorico</value>
+					</key>
+					<value> 
+						SELECT
+						CASE v_dxmi_tipo_contrato
+							WHEN 'M' THEN 'Mercancia'
+							WHEN 'D' THEN 'Deuda'
+							WHEN 'A' THEN 'Acciones'
+							WHEN 'F' THEN 'Futuros Energéticos'
+							WHEN 'I' THEN 'Indice'
+							WHEN 'T' THEN 'Interes'
+							WHEN 'O' THEN 'Opcion'
+							WHEN 'E' THEN 'Estrategia'
+							WHEN 'C' THEN 'Moneda Extranjera'
+							ELSE 'Otros' END contrato,
+						SUM(CANTIDAD) contratos,
+						SUM(MONTO) volumen,
+						SUM(v_opindx_valor) openInterest,
+						sum(v_dxmi_valor_nominal * CANTIDAD) volumenMwh
+						FROM unicabd.tbdxmi
+						LEFT JOIN unicabd.tbopindx ON v_opindx_cod_crcc = v_dxmi_nemo_crcc AND v_opindx_fecha = :date
+						INNER JOIN
+							(SELECT
+							v_dxtra_nemo nemo,
+							SUM(v_dxtra_cantidad) CANTIDAD,
+							SUM(v_dxtra_monto) MONTO
+							FROM unicabd.tbdxtra
+							WHERE v_dxtra_hor_gra LIKE ':fecha%'
+							GROUP BY v_dxtra_nemo) opes
+						ON nemo = v_dxmi_cod_contrato
+						GROUP BY contrato
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosResumen</value>
+					</key>
+					<value>
+						SELECT
+						v_dxmi_nom_instrum contrato, 
+						SUM(CANTIDAD) contratos,
+						SUM(MONTO) volumen,
+						SUM(v_opindx_valor) openInterest,
+						sum(v_dxmi_valor_nominal * CANTIDAD) volumenMwh
+						FROM tbdxmi
+						LEFT JOIN tbopindx ON v_opindx_cod_crcc = v_dxmi_nemo_crcc AND v_opindx_fecha = (SELECT MAX(v_opindx_fecha) FROM tbopindx)
+						INNER JOIN
+							(SELECT
+							v_dxtr_nemo nemo,
+							SUM(v_dxtr_cantidad) CANTIDAD,
+							SUM(v_dxtr_monto) MONTO
+							FROM unicabd.tbdxtr
+							WHERE v_dxtr_hor_gra &lt; ':fechaMenosV'
+							GROUP BY nemo) opes
+						ON nemo = v_dxmi_cod_contrato
+						AND v_dxmi_tipo_contrato = ':opcion'
+						GROUP BY contrato
+						ORDER BY volumen DESC
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosParametrosBusqueda</value>
+					</key>
+					<value>
+						SELECT
+						CASE v_dxmi_tipo_contrato
+							WHEN 'M' THEN 'Mercancia'
+							WHEN 'D' THEN 'Deuda'
+							WHEN 'A' THEN 'Acciones'
+							WHEN 'F' THEN 'Futuros Energéticos'
+							WHEN 'I' THEN 'Indice'
+							WHEN 'T' THEN 'Interes'
+							WHEN 'O' THEN 'Opcion'
+							WHEN 'E' THEN 'Estrategia'
+							WHEN 'C' THEN 'Moneda Extranjera'
+							ELSE 'Otros' END tipoDerivado,
+						v_dxmi_nom_instrum contrato,
+						v_dxmi_cod_contrato nemo,
+						SUM(CANTIDAD) contratos,
+						SUM(MONTO) volumen,
+						SUM(v_opindx_valor) openInterest,
+						'' vencimiento,
+						sum(v_dxmi_valor_nominal * CANTIDAD) volumenMwh
+						FROM unicabd.tbdxmi
+						LEFT JOIN unicabd.tbopindx ON v_dxmi_nemo_crcc = v_opindx_cod_crcc AND v_opindx_fecha = :fechaAyer
+						INNER JOIN
+							(SELECT
+							v_dxtr_nemo nemo,
+							SUM(v_dxtr_cantidad) CANTIDAD,
+							SUM(v_dxtr_monto) MONTO
+							FROM tbdxtr
+							WHERE v_dxtr_hor_gra &lt; ':fechaMenosV'
+							GROUP BY nemo) OPES
+						ON nemo = v_dxmi_cod_contrato
+						:and1
+						GROUP BY nemo
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosParametrosBusquedaHistorico</value>
+					</key>
+					<value> 
+						SELECT
+						1 orden, 
+						v_dxmi_tipo_contrato nemo,
+						v_dxmi_nom_instrum contrato,
+						SUM(CANTIDAD) contratos,
+						SUM(MONTO) volumen,
+						SUM(v_opindx_valor) openInterest,
+						sum(v_dxmi_valor_nominal * CANTIDAD) volumenMwh
+						FROM unicabd.tbdxmi t
+						LEFT JOIN unicabd.tbopindx ON v_opindx_cod_crcc = v_dxmi_nemo_crcc AND v_opindx_fecha = :fechaSG
+						INNER JOIN
+							(SELECT
+							v_dxtra_nemo nemo,
+							SUM(v_dxtra_cantidad) CANTIDAD,
+							SUM(v_dxtra_monto) MONTO
+							FROM unicabd.tbdxtra
+							WHERE v_dxtra_hor_gra LIKE ':fechaG%'
+							GROUP BY nemo) opes
+						ON nemo = v_dxmi_cod_contrato
+						:and1 :and2
+						GROUP BY contrato
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosDia</value>
+					</key>
+					<value> select tr.V_DXTR_PRECIO precio, 
+					               tr.V_DXTR_CANTIDAD contratos, 
+					               tr.V_DXTR_cantidad * v_dxmi_valor_nominal volumen
+						    from unicabd.tbdxtr tr 
+						    INNER JOIN tbdxmi ON v_dxmi_cod_contrato = v_dxtr_nemo
+						    where tr.V_DXTR_NEMO = ':nemoDerivado' :and1 </value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosDiaHistorico</value>
+					</key>
+					<value> select tr.V_DXTRA_PRECIO precio, 
+					               tr.V_DXTRA_CANTIDAD contratos, 
+					               tr.V_DXTRa_cantidad * v_dxmi_valor_nominal volumen
+					        from unicabd.tbdxtra tr 
+					        INNER JOIN tbdxmi ON v_dxmi_cod_contrato = v_dxtra_nemo
+					        where tr.V_DXTRA_NEMO = ':nemoDerivado' :and1 </value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosExtendidos</value>
+					</key>
+					<value> 
+						SELECT
+						v_dxmi_cod_contrato contrato,
+						SUM(CANTIDAD) contratos,
+						SUM(v_opindx_valor) openInterest,
+						SUM(MONTO) volumen,
+						SUM(CANTIDAD * v_dxmi_valor_nominal) volumenMwh,
+						precio,
+						((precio / precioAnt) - 1) * 100 variacion
+						FROM tbdxmi
+						LEFT JOIN tbopindx ON v_opindx_cod_crcc = v_dxmi_nemo_crcc AND v_opindx_fecha = (SELECT MAX(v_opindx_fecha) FROM tbopindx)
+						INNER JOIN
+							(SELECT
+							v_dxtr_nemo nemo,
+							SUM(v_dxtr_cantidad) CANTIDAD,
+							SUM(v_dxtr_monto) MONTO
+							FROM tbdxtr
+							WHERE v_dxtr_hor_gra &lt; ':fechaMenosV'
+							GROUP BY nemo) opes
+						ON v_dxmi_cod_contrato = nemo
+						INNER JOIN
+							(SELECT
+							v_dxtr_nemo nemoPrecio,
+							v_dxtr_precio precio
+							FROM tbdxtr
+							INNER JOIN
+								(SELECT
+								v_dxtr_nemo nemoP,
+								MAX(v_dxtr_hor_gra) fechaP
+								FROM tbdxtr
+								WHERE v_dxtr_hor_gra &lt; ':fechaMenosV'
+								GROUP BY nemoP) fechas
+							ON nemoP = v_dxtr_nemo AND fechaP = v_dxtr_hor_gra) precios
+						ON nemoPrecio = v_dxmi_cod_contrato
+						INNER JOIN
+							(SELECT
+							v_dxtra_nemo nemoPrecioAnt,
+							v_dxtra_precio precioAnt
+							FROM tbdxtra
+							INNER JOIN
+								(SELECT
+								v_dxtra_nemo nemo,
+								MAX(v_dxtra_hor_gra) fecha
+								FROM tbdxtra
+								GROUP BY nemo) fechas
+							ON nemo = v_dxtra_nemo AND v_dxtra_hor_gra = fecha) preciosAnt
+						ON nemoPrecioAnt = v_dxmi_cod_contrato
+						WHERE v_dxmi_nom_instrum LIKE '%:contrato%'
+						GROUP BY contrato
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadosExtendidosHistorico</value>
+					</key>
+					<value>
+						SELECT
+						v_dxmi_cod_contrato contrato,
+						SUM(CANTIDAD) contratos,
+						SUM(v_opindx_valor) openInterest,
+						SUM(MONTO) volumen,
+						SUM(CANTIDAD * v_dxmi_valor_nominal) volumenMwh,
+						precio,
+						((precio / precioAnt) - 1) * 100 variacion
+						FROM tbdxmi
+						LEFT JOIN tbopindx ON v_opindx_cod_crcc = v_dxmi_nemo_crcc AND v_opindx_fecha = (SELECT MAX(v_opindx_fecha) FROM tbopindx)
+						INNER JOIN
+							(SELECT
+							v_dxtra_nemo nemo,
+							SUM(v_dxtra_cantidad) CANTIDAD,
+							SUM(v_dxtra_monto) MONTO
+							FROM tbdxtra
+							WHERE v_dxtra_hor_gra LIKE ':fechaCons%'
+							GROUP BY nemo) opes
+						ON v_dxmi_cod_contrato = nemo
+						INNER JOIN
+							(SELECT
+							v_dxtra_nemo nemoPrecio,
+							v_dxtra_precio precio
+							FROM tbdxtra
+							INNER JOIN
+								(SELECT
+								v_dxtra_nemo nemoP,
+								MAX(v_dxtra_hor_gra) fechaP
+								FROM tbdxtra
+								WHERE v_dxtra_hor_gra LIKE ':fechaCons%'
+								GROUP BY nemoP) fechas
+							ON nemoP = v_dxtra_nemo AND fechaP = v_dxtra_hor_gra) precios
+						ON nemoPrecio = v_dxmi_cod_contrato
+						INNER JOIN
+							(SELECT
+							v_dxtra_nemo nemoPrecioAnt,
+							v_dxtra_precio precioAnt
+							FROM tbdxtra
+							INNER JOIN
+								(SELECT
+								v_dxtra_nemo nemo,
+								MAX(v_dxtra_hor_gra) fecha
+								FROM tbdxtra
+								WHERE v_dxtra_hor_gra &lt; ':fechaCons'
+								GROUP BY nemo) fechas
+							ON nemo = v_dxtra_nemo AND v_dxtra_hor_gra = fecha) preciosAnt
+						ON nemoPrecioAnt = v_dxmi_cod_contrato
+						WHERE v_dxmi_nom_instrum LIKE ':contrato%'
+						GROUP BY contrato
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoPrecioApertura</value>
+					</key>
+					<value> select tr0.V_DXTR_PRECIO precio from unicabd.tbdxtr tr0
+						where tr0.V_DXTR_HOR_GRA = (select min(tr.V_DXTR_HOR_GRA) from
+						unicabd.tbdxtr tr where tr.V_DXTR_NEMO = ':nemo') and
+						tr0.V_DXTR_NEMO = ':nemo' </value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoPrecioAperturaHistorico</value>
+					</key>
+					<value> select tr0.V_DXTRA_PRECIO precio from unicabd.tbdxtra tr0
+						where tr0.V_DXTRA_HOR_GRA = (select min(tr.V_DXTRA_HOR_GRA) from
+						unicabd.tbdxtra tr where tr.V_DXTRA_NEMO = ':nemo' and tr.V_DXTRA_HOR_GRA like ':fechaAnt%') and
+						tr0.V_DXTRA_NEMO = ':nemo' </value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoPrecioMayorContrato</value>
+					</key>
+					<value> select max(tr.V_DXTR_PRECIO) precio from unicabd.tbdxtr tr
+						where tr.V_DXTR_NEMO = ':nemo'
+						and V_DXTR_HOR_GRA &lt; ':fechaMenosV'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoPrecioMayorContratoHistorico</value>
+					</key>
+					<value> select max(tr.V_DXTRA_PRECIO) precio from unicabd.tbdxtra tr
+						where tr.V_DXTRA_NEMO = ':nemo' and tr.V_DXTRA_HOR_GRA like ':fechaAnt%' </value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoPrecioMenorContrato</value>
+					</key>
+					<value> select min(tr.V_DXTR_PRECIO) precio from unicabd.tbdxtr tr
+						where tr.V_DXTR_NEMO = ':nemo'
+						and V_DXTR_HOR_GRA &lt; ':fechaMenosV' 
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoPrecioMenorContratoHistorico</value>
+					</key>
+					<value> select min(tr.V_DXTRA_PRECIO) precio from unicabd.tbdxtra tr
+						where tr.V_DXTRA_NEMO = ':nemo' and tr.V_DXTRA_HOR_GRA like ':fechaAnt%' </value>
+				</entry>
+				<entry>
+					<key>
+						<value>ultimaOperacionDerivado</value>
+					</key>
+					<value> select max(der.fecha) ultima from (select tr.V_DXTR_HOR_GRA
+						fecha from unicabd.tbdxtr tr where tr.V_DXTR_NEMO = ':nemo' and V_DXTR_HOR_GRA &lt; ':fechaMenosV' union
+						select tra.V_DXTRA_HOR_GRA fecha from unicabd.tbdxtra tra where
+						tra.V_DXTRA_NEMO = ':nemo') der </value>
+				</entry>
+				<entry>
+					<key>
+						<value>ultimaOperacionDerivadoHistorico</value>
+					</key>
+					<value>
+						select max(tra.V_DXTRA_HOR_GRA) ultima 
+						from unicabd.tbdxtra tra 
+						where
+							tra.V_DXTRA_NEMO = ':nemo' 
+							and tra.V_DXTRA_HOR_GRA like ':fechaAnt%' 
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoResumenContrato</value>
+					</key>
+					<value>
+						SELECT tmi.V_DXMI_NOM_CONTRATO contrato ,
+						       CASE tmi.V_DXMI_ESTADO
+						              WHEN 'A' THEN 'Activo'
+						              WHEN 'S' THEN 'Suspendido'
+						              WHEN 'C' THEN 'Caduco'
+						              ELSE ''
+						       END estado                               ,
+						       tmi.V_DXMI_SUBYACENTE canastaEntregables ,
+						       tmi.V_DXMI_STRIKE strike                 ,
+						       tmi.V_DXMI_PERIODO_CICLO ciclo           ,
+						       CASE tmi.V_DXMI_TIPO_OPC
+						              WHEN 'A' THEN 'Americana'
+						              WHEN 'E' THEN 'Europea'
+						              WHEN 'S' THEN 'Asiatica'
+						              ELSE ''
+						       END tipoOpcion                         ,
+						       0 maximoTransaccional                  ,
+						       0 minimoRegistro                       ,
+						       tmi.V_DXMI_FECHA_VCTO fechaVcto        ,
+						       tmi.V_DXMI_VALOR_NOMINAL valorNominal  ,
+						       0 factorConversion                     ,
+						       tmi.V_DXMI_MOV_MINIMO movimientoMinimo ,
+						       tmi.V_DXMI_FECHA_INI_NEG fechaInsc     ,
+						       CASE tmi.V_DXMI_PUT_CALL
+						              WHEN 'P' THEN 'Put'
+						              WHEN 'C' THEN 'Call'
+						              ELSE 'Otro'
+						       END tipo ,
+						       tmi.V_DXMI_ENTREGA tipoLiquidacion
+						FROM   unicabd.tbdxmi tmi
+						WHERE  tmi.V_DXMI_COD_CONTRATO = ':nemo' 
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoResumenExtendido</value>
+					</key>
+					<value>
+						SELECT   ti.V_DXMI_NOM_CONTRATO contrato  ,
+						         SUM(tr.V_DXTR_CANTIDAD) contratos,
+						         SUM(tr.V_DXTR_MONTO) volumen,
+						         (SELECT tbo.V_OPINDX_VALOR
+						         FROM    unicabd.tbopindx tbo,
+						                 unicabd.tbdxmi tt
+						         WHERE   tbo.V_OPINDX_COD_CRCC     = tt.V_DXMI_NEMO_CRCC
+						             AND tt.V_DXMI_COD_CONTRATO  = tr.V_DXTR_NEMO
+						             AND tt.V_DXMI_TIPO_CONTRATO = ti.V_DXMI_TIPO_CONTRATO
+						             AND tbo.V_OPINDX_FECHA        =
+						                 (SELECT MAX(tbo2.V_OPINDX_FECHA)
+						                 FROM    unicabd.tbopindx tbo2,
+						                         unicabd.tbdxmi t0
+						                 WHERE   t0.V_DXMI_NEMO_CRCC     = tbo2.V_OPINDX_COD_CRCC
+						                     AND t0.V_DXMI_TIPO_CONTRATO = ti.V_DXMI_TIPO_CONTRATO
+						                 )
+						         ) openInterest          ,
+						         tr0.V_DXTR_PRECIO precio,
+						         ((tr.V_DXTR_PRECIO - tra.V_DXTRA_PRECIO)*100/tra.V_DXTRA_PRECIO) variacion,
+						         sum(ti.v_dxmi_valor_nominal * tr.V_DXTR_CANTIDAD) volumenMwh
+						FROM     unicabd.tbdxtr tr  ,
+						         unicabd.tbdxmi ti  ,
+						        ( SELECT V_DXTRA_PRECIO
+						       FROM    unicabd.tbdxtra
+						       WHERE   V_DXTRA_NEMO    = ':nemo'
+						           AND V_DXTRA_HOR_GRA =
+						               ( SELECT MAX(tra1.V_DXTRA_HOR_GRA)
+						               FROM    unicabd.tbdxtra tra1
+						               WHERE   tra1.V_DXTRA_NEMO = ':nemo'
+						               )
+						       ) tra ,
+						       ( SELECT V_DXTR_PRECIO
+						       FROM    unicabd.tbdxtr
+						       WHERE   V_DXTR_NEMO    = ':nemo'
+						           AND V_DXTR_HOR_GRA =
+						               ( SELECT MAX(tr1.V_DXTR_HOR_GRA)
+						               FROM    unicabd.tbdxtr tr1
+						               WHERE   tr1.V_DXTR_NEMO = ':nemo' and V_DXTR_HOR_GRA &lt; ':fechaMenosV'
+						               )
+						       ) tr0
+						WHERE    tr.V_DXTR_NEMO         = ':nemo'
+						     AND ti.V_DXMI_COD_CONTRATO = tr.V_DXTR_NEMO and V_DXTR_HOR_GRA &lt; ':fechaMenosV'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoResumenExtendidoHistorico</value>
+					</key>
+					<value> 
+						SELECT ti.V_DXMI_NOM_CONTRATO contrato    ,
+						       SUM(tr.V_DXTRA_CANTIDAD) contratos ,
+						       SUM(tr.V_DXTRA_cantidad * ti.V_DXMI_VALOR_NOMINAL) volumen,
+						       ( SELECT tbo.V_OPINDX_VALOR
+						       FROM    unicabd.tbopindx tbo ,
+						               unicabd.tbdxmi tt
+						       WHERE   tbo.V_OPINDX_COD_CRCC     = tt.V_DXMI_NEMO_CRCC
+						           AND tt.V_DXMI_COD_CONTRATO  = tr.V_DXTRA_NEMO
+						           AND tt.V_DXMI_TIPO_CONTRATO = ti.V_DXMI_TIPO_CONTRATO
+						           AND tbo.V_OPINDX_FECHA        =
+						               ( SELECT MAX(tbo2.V_OPINDX_FECHA)
+						               FROM    unicabd.tbopindx tbo2 ,
+						                       unicabd.tbdxmi t0
+						               WHERE   tbo2.V_OPINDX_FECHA       = :opInFecha
+						                   AND t0.V_DXMI_NEMO_CRCC     = tbo2.V_OPINDX_COD_CRCC
+						                   AND t0.V_DXMI_TIPO_CONTRATO = ti.V_DXMI_TIPO_CONTRATO
+						               )
+						       ) openInterest            ,
+						       tr0.V_DXTRA_PRECIO precio ,
+						       ((tr.V_DXTRA_PRECIO - tra.V_DXTRA_PRECIO)*100/tra.V_DXTRA_PRECIO) variacion,
+						       sum(ti.v_dxmi_valor_nominal * tr.V_DXTRa_CANTIDAD) volumenMwh
+						FROM   unicabd.tbdxtra tr ,
+						       unicabd.tbdxmi ti  ,
+						       ( SELECT V_DXTRA_PRECIO
+						       FROM    unicabd.tbdxtra
+						       WHERE   V_DXTRA_NEMO    = ':nemo'
+						           AND V_DXTRA_HOR_GRA =
+						               ( SELECT MAX(tra1.V_DXTRA_HOR_GRA)
+						               FROM    unicabd.tbdxtra tra1
+						               WHERE   tra1.V_DXTRA_NEMO    = ':nemo'
+						                   AND tra1.V_DXTRA_HOR_GRA &lt; ':fechaHoy'
+						               )
+						       ) tra ,
+						       ( SELECT V_DXTRA_PRECIO
+						       FROM    unicabd.tbdxtra
+						       WHERE   V_DXTRA_NEMO    = ':nemo'
+						           AND V_DXTRA_HOR_GRA =
+						               ( SELECT MAX(tr1.V_DXTRA_HOR_GRA)
+						               FROM    unicabd.tbdxtra tr1
+						               WHERE   tr1.V_DXTRA_NEMO = ':nemo'
+						                   AND tr1.V_DXTRA_HOR_GRA LIKE ':fechaHoy%'
+						               )
+						       ) tr0
+						WHERE  tr.V_DXTRA_NEMO        = ':nemo'
+						   AND ti.V_DXMI_COD_CONTRATO = tr.V_DXTRA_NEMO
+						   AND tr.V_DXTRA_HOR_GRA LIKE ':fechaHoy%'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>historicoDerivado</value>
+					</key>
+					<value>
+						SELECT
+						SUBSTRING(tra.V_DXTRA_HOR_GRA,1, 19) fechaString,
+						tra.V_DXTRA_PRECIO valorCierre,
+						SUM(tra.V_DXTRA_CANTIDAD) volumen,
+						deri.V_DXTRA_PRECIO valorUltimoCierre
+						FROM unicabd.tbdxtra tra, unicabd.tbdxtra deri
+						WHERE tra.V_DXTRA_NEMO = ':nemo'
+						AND tra.V_DXTRA_HOR_GRA =
+								(SELECT
+								fechaHora
+								FROM
+									(SELECT 
+									MAX(tra0.V_DXTRA_HOR_GRA) fechaHora,
+									SUBSTRING(tra0.V_DXTRA_HOR_GRA,1, 10) fecha0
+									FROM unicabd.tbdxtra tra0
+									WHERE   V_DXTRA_NEMO = ':nemo'
+									GROUP BY fecha0) fechas
+								WHERE   SUBSTRING(tra.V_DXTRA_HOR_GRA,1, 10) = fechas.fecha0)
+								AND deri.V_DXTRA_HOR_GRA =
+									(SELECT
+									MAX(V_DXTRA_HOR_GRA)
+									FROM    unicabd.tbdxtra
+									WHERE   V_DXTRA_NEMO = ':nemo')
+						GROUP BY fechaString
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoMenorBid</value>
+					</key>
+					<value> select tpm.V_DXPM_MEJ_PRE_COM menorBid from unicabd.tbdxpm
+						tpm where V_DXPM_NEMO = ':nemo' :and1 </value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoMejorOffer</value>
+					</key>
+					<value> select tpm.V_DXPM_MEJ_PRE_VEN mejorOffer from
+						unicabd.tbdxpm tpm where V_DXPM_NEMO = ':nemo' :and1 </value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoTicker</value>
+					</key> 
+					<value>
+						SELECT precios.v_dxtr_hor_gra horaUltimaMarcacion,
+						       nemos.v_dxtr_nemo    nemo ,
+						       V_dxtr_PRECIO ultimoPrecioTasa  ,
+						       ((V_dxtr_PRECIO/v_dxpm_precio) -1) * 100 variacion
+						FROM (
+								   (SELECT  v_dxtr_nemo,
+											SUM(v_dxtr_monto) monto
+								   FROM     unicabd.tbdxtr
+								   WHERE    v_dxtr_hor_gra     &lt; ':fechaMenosV'
+										AND V_dxtr_PROCEDENCIA = 'T'
+								   GROUP BY v_dxtr_nemo
+								   ORDER BY monto DESC limit 20
+								   )
+								UNION DISTINCT
+								   (SELECT NOMBRE_TIT,
+										   0
+								     FROM    portalbvc.titulo_valor
+								     WHERE   ticker = 1
+						            )
+								) nemos
+						       INNER JOIN
+						             (SELECT v_dxtr_nemo  ,
+						                     v_dxtr_precio,
+						                     v_dxtr_hor_gra
+						             FROM    unicabd.tbdxtr
+						                     INNER JOIN
+						                             (SELECT v_dxtr_nemo nemo,
+						                                     MAX(v_dxtr_hor_gra) fecha
+						                             FROM    unicabd.tbdxtr
+						                             WHERE   v_dxtr_hor_gra &lt; ':fechaMenosV'
+													 group by v_dxtr_nemo
+						                             ) fecha
+						                     ON      nemo  = v_dxtr_nemo
+						                         AND fecha = v_dxtr_hor_gra
+						             ) precios
+						      ON     precios.v_dxtr_nemo = nemos.v_dxtr_nemo
+						      INNER JOIN 
+									(select a.v_dxpm_precio, a.v_dxpm_nemo
+									from (select 	ext.v_dxpm_fec_val, 
+													ext.v_dxpm_nemo, 
+													ext.v_dxpm_precio
+											from  unicabd.tbdxpm ext) a
+										inner join (select max(inte.v_dxpm_fec_val) fecha, inte.v_dxpm_nemo
+													from unicabd.tbdxpm inte 
+													where inte.v_dxpm_fec_val &lt; :fechaAyer
+													group by inte.v_dxpm_nemo) b on (a.v_dxpm_nemo = b.v_dxpm_nemo 
+																				AND a.v_dxpm_fec_val = b.fecha)) precioAnt
+						      ON     precioAnt.v_dxpm_nemo = precios.v_dxtr_nemo
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>getTotalContratosDiaAnterior</value>
+					</key>
+					<value>
+						select sum(tabla.contratos) suma
+						from (select sum(trf.v_dxtra_cantidad) contratos
+						    from unicabd.tbdxtra trf
+						    where substring(trf.v_dxtra_hor_gra, 1, 10) = (select substring(max(trfi.v_dxtra_hor_gra),1,10)
+						                                                   from unicabd.tbdxtra trfi)
+						    union
+						    select sum(tro.v_actra_cantidad) contratos
+						    from unicabd.tbactraopcf tro
+						    where substring(tro.v_actra_hor_gra, 1, 10) =  (select substring(max(trfi.v_dxtra_hor_gra),1,10)
+						                                                   from unicabd.tbdxtra trfi)) tabla
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>cargarIntradiaDerivados</value>
+					</key>
+					<value> select max(tr.V_DXTR_HOR_GRA) fechaString, tr.V_DXTR_PRECIO valorCierre, tra.V_DXTRA_PRECIO valorUltimoCierre
+							from unicabd.tbdxtr tr, unicabd.tbdxtra tra
+							where tr.V_DXTR_NEMO = ':nemo' and
+							tr.V_DXTR_HOR_GRA = (select max(V_DXTR_HOR_GRA) from unicabd.tbdxtr where V_DXTR_NEMO = ':nemo')
+							and tra.V_DXTRA_NEMO = ':nemo' and
+							tra.V_DXTRA_HOR_GRA = (select max(V_DXTRA_HOR_GRA) from unicabd.tbdxtra where V_DXTRA_NEMO = ':nemo')
+							and tr.V_DXTR_HOR_GRA &lt; ':fechaAnt'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>cargarIntradiaDerivadosHistorico</value>
+					</key>
+					<value> select max(tr.V_DXTR_PRECIO) valorCierre, SUBSTR(tr.V_DXTR_HOR_GRA,1,19) fechaString, 
+							tra.V_DXTRA_PRECIO valorUltimoCierre, tr.v_dxtr_cantidad volumen
+							from unicabd.tbdxtr tr, unicabd.tbdxtra tra
+							where tr.V_DXTR_NEMO = ':nemo' and tra.V_DXTRA_NEMO = ':nemo' and
+							tr.V_DXTR_HOR_GRA &lt; ':fechaAnt' and
+							tra.V_DXTRA_HOR_GRA = (select max(V_DXTRA_HOR_GRA) from unicabd.tbdxtra where V_DXTRA_NEMO = ':nemo')
+							group by fechaString
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>esContratoDeDerivado</value>
+					</key>
+					<value>
+						SELECT
+						COUNT(1) cuenta
+						FROM tbdxmi
+						WHERE v_dxmi_cod_contrato = ':nemo'
+					</value>
+				</entry>
+				<entry>
+					<key>
+						<value>derivadoResumenExtendidoHistoricoGrafica</value>
+					</key>
+					<value>
+						SELECT
+						v_dxmi_cod_contrato contrato,
+						LEFT(v_dxtra_hor_gra, 10) fecha,
+						cantidad contratos,
+						v_opindx_valor openInterest,
+						monto Volumen,
+						(cantidad* v_dxmi_valor_nominal) volumenMwh,
+						precio,
+						v_dxpm_pre_cierre,
+						((precio / v_dxpm_pre_cierre) - 1) * 100 variacion
+						FROM tbdxmi
+						INNER  JOIN
+							(SELECT
+							v_dxtra_nemo nemo,
+							v_dxtra_cantidad cantidad,
+							v_dxtra_monto monto,
+							v_dxtra_hor_gra,
+							v_dxtra_precio precio
+							FROM unicabd.tbdxtra
+							INNER JOIN
+								(SELECT
+								v_dxtra_nemo nemo_ult,
+								LEFT(v_dxtra_hor_gra, 10) fecha_ult,
+								MAX(v_dxtra_hor_gra) hor_gra_ult
+								FROM unicabd.tbdxtra
+								WHERE v_dxtra_hor_gra > ':fechaIni'
+								AND v_dxtra_hor_gra &lt; ':fechaFin'
+								GROUP BY nemo_ult, fecha_ult) fecha
+							ON hor_gra_ult = v_dxtra_hor_gra) opes
+						ON nemo = v_dxmi_cod_contrato
+						LEFT JOIN unicabd.tbopindx ON v_opindx_cod_crcc = v_dxmi_nemo_crcc AND v_opindx_fecha = DATE_FORMAT(v_dxtra_hor_gra, '%Y%m%d')
+						LEFT JOIN unicabd.tbdxpm ON v_dxpm_nemo = v_dxmi_cod_contrato AND v_dxpm_fecha = 
+								(SELECT MAX(v_dxpm_fecha) 
+								FROM tbdxpm m
+								WHERE m.v_dxpm_nemo = ':nemo' AND m.v_dxpm_fecha &lt; DATE_FORMAT(v_dxtra_hor_gra, '%Y%m%d'))
+						WHERE v_dxmi_cod_contrato = ':nemo'
+					</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>
